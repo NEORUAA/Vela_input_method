@@ -23,24 +23,7 @@
           <div class="item column center"  for="{{cvalList}}">
             <input show='{{resultList.length > $idx}}' class="calbtn0" type="button" value="{{resultList[$idx]}}" @click="onRsSelect(resultList[$idx])" />
           </div>
-          <!-- <div class="item column center">
-            <input show='{{resultList.length > 1}}' class="calbtn0" type="button" value="{{resultList[1]}}" @click="onRsSelect(resultList[1])" />
-          </div>
-          <div class="item column center">
-            <input show='{{resultList.length > 2}}' class="calbtn0" type="button" value="{{resultList[2]}}" @click="onRsSelect(resultList[2])" />
-          </div>
-          <div class="item column center">
-            <input show='{{resultList.length > 3}}' class="calbtn0" type="button" value="{{resultList[3]}}" @click="onRsSelect(resultList[3])" />
-          </div>
-          <div class="item column center">
-            <input show='{{resultList.length > 4}}' class="calbtn0" type="button" value="{{resultList[4]}}" @click="onRsSelect(resultList[4])" />
-          </div> -->
         </div>
-        
-        <!-- <scroll id="scrollId1" style="position: absolute;top:38px;left:78px;width:324px;height:160px;flex-direction: column;background-color:rgb(38,38,38);border-radius: 12px;" 
-            scroll-y="true" if="{{downFlag=='down'}}">
-          
-        </scroll> -->
   
         <list class="list3" if="{{downFlag=='down'}}">
           <list-item class="item3" for="{{itemArray in resultList2}}">
@@ -226,49 +209,24 @@ import router from "@system.router";
 import app from "@system.app";
 import prompt from "@system.prompt";
 import vibrator from "@system.vibrator";
-
 import { SimpleInputMethod } from "./assets/dicUtil.js";
-
 function doSearchDic(word, cb) {
-  // cb([]);
-
   var hanzi = SimpleInputMethod.getHanzi(word);
-  //console.log(hanzi);
-
   if (hanzi && hanzi[0]) {
     cb(hanzi[0]);
   } else {
     cb([]);
   }
 }
-
 const maxLoadStr = 200;
 var preLoadData = {};
-
 var searchItem = "";
-
 function deleteLast(t) {
   if (t) {
     return t.substr(0, t.length - 1);
   }
   return "";
 }
-
-// function encodeChineseCharacters(text) {
-//     // 使用正则表达式匹配中文字符，并用 encodeURIComponent() 进行编码
-//       return text.replace(/[\u4e00-\u9fa5]/g, function (chineseChar) {
-//         return encodeURIComponent(chineseChar);
-//       });
-//     }
-
-// function stringToHex(str) {
-//   var hex = '';
-//   for (var i = 0; i < str.length; i++) {
-//     hex += str.charCodeAt(i).toString(16).padStart(2, '0');
-//   }
-//   return hex;
-// }
-
 function getCurrentDate(date) {
   var seperator1 = "-";
   var year = date.getFullYear();
@@ -283,12 +241,9 @@ function getCurrentDate(date) {
   var currentdate = year + seperator1 + month + seperator1 + strDate;
   return currentdate;
 }
-
 var blinkFlag = false;
-
 export default {
-  // 页面级组件的数据模型，影响传入数据的覆盖机制：private内定义的属性不允许被覆盖
-  props: ["hide", "keyboardtype", "maxlength", "vibratemode","keyboardtype"],
+  props: ["hide", "keyboardtype", "maxlength", "vibratemode", "keyboardtype"],
   data: {
     allTxt: "",
     allTxtShow: "",
@@ -301,43 +256,30 @@ export default {
     lastWaitingStr: "",
     downFlag: "",
     hasDicFile: true,
-    // listHeight: 317,
     debug: false,
     lang: "cn",
     wdTop: 216,
     numFlag: false,
     upperFlag: false,
     gbIndex: 0,
-    color0:"white",
-    color1:"white",
-    color2:"white",
-    color3:"white",
+    color0: "white",
+    color1: "white",
+    color2: "white",
+    color3: "white",
     abc: "test",
-    // showFlag: false,
-    vibrate:"",
-    cvalList:[0,1,2,3,4]
+    vibrate: "",
+    cvalList: [0, 1, 2, 3, 4],
   },
   onInit() {
-    // var that = this;
-
-    // this.listHeight = 158;
-
-    // this.showFlag = !this.hide;
     if (this.maxlength) {
       const tempCvalList = [];
-      for(let i = 0 ; i < this.maxlength ; i++ ){
+      for (let i = 0; i < this.maxlength; i++) {
         tempCvalList.push(i);
       }
       this.cvalList = tempCvalList;
     }
-    
-    // 监听数据变化
-    this.$watch('hide', 'watchHidePropsChange')
-    this.$watch('maxlength', 'watchMaxLengthPropsChange')
-
-    // setInterval(function(){
-    //     that.resetGbShow();
-    // },500);
+    this.$watch("hide", "watchHidePropsChange");
+    this.$watch("maxlength", "watchMaxLengthPropsChange");
   },
   resetGbShow() {
     var that = this;
@@ -362,22 +304,11 @@ export default {
     }
     blinkFlag = !blinkFlag;
   },
-
   exit() {
     app.terminate();
   },
   addAllTxt(txt) {
-    // this.allTxt = this.allTxt.substr(0,this.gbIndex) + txt + this.allTxt.substr(this.gbIndex + 1);
-    // this.gbIndex = this.gbIndex + 1;
-    //console.log('gbIndex = ' + this.gbIndex)
-
-    this.$emit('complete', {
-      content: txt,
-    });
-
-    // this.$dispatch('complete',{
-    //   content:txt
-    //     })
+    this.$emit("complete", { content: txt });
   },
   deleteAllTxt() {
     if (this.allTxt) {
@@ -390,22 +321,17 @@ export default {
         this.gbIndex = this.gbIndex - 1;
       }
     }
-    //console.log('deleteAllTxt')
   },
   onRsSelect(txt) {
     this.onVibrate();
     this.cval = "";
-    // this.allTxt = this.allTxt + txt;
     this.addAllTxt(txt);
     this.clearWaiting();
     this.resetReslutList();
     this.downFlag = "";
-
-    //console.log('allTxt =' + this.allTxt)
   },
   onBtnClick(sign) {
     this.onVibrate();
-
     if (sign == "AC") {
       this.cval = "";
       this.clearWaiting();
@@ -429,25 +355,17 @@ export default {
         this.cval = deleteLast(this.cval);
         this.resetReslutList();
       } else {
-        this.$emit('delete', {});
+        this.$emit("delete", {});
       }
-      
     } else if (sign == "space") {
-      // this.allTxt += ' ';
       this.addAllTxt(" ");
-      // this.resetReslutList();
     } else if (sign == "infos") {
-      router.push({
-        uri: "/pages/about",
-        params: {},
-      });
+      router.push({ uri: "/pages/about", params: {} });
     } else if (sign == "down") {
       if (this.downFlag == "down") {
         this.downFlag = "";
-        // this.listHeight = 158;
       } else {
         this.downFlag = "down";
-        // this.listHeight = 317;
       }
     } else if (sign == "select") {
       if (this.lastWaitingStr != sign && this.lastWaitingStr) {
@@ -455,19 +373,11 @@ export default {
           this.cval += this.waitingList[this.waitingIndex];
         } else {
           if (this.upperFlag) {
-            this.addAllTxt(
-              this.waitingList[this.waitingIndex].toUpperCase(),
-            );
+            this.addAllTxt(this.waitingList[this.waitingIndex].toUpperCase());
           } else {
-            this.addAllTxt(
-              this.waitingList[this.waitingIndex].toLowerCase(),
-            );
+            this.addAllTxt(this.waitingList[this.waitingIndex].toLowerCase());
           }
         }
-
-        // this.lastWaitingStr = sign;
-        // this.waitingIndex = 0;
-        // this.waitingList = sign.split("");
         this.clearWaiting();
         this.resetReslutList();
       }
@@ -484,7 +394,6 @@ export default {
       this.upperFlag = false;
     } else {
       if (sign.length == 1) {
-        // this.allTxt += sign;
         this.addAllTxt(sign);
       } else {
         if (this.waitingIndex >= 0) {
@@ -507,7 +416,6 @@ export default {
                 );
               }
             }
-
             this.lastWaitingStr = sign;
             this.waitingIndex = 0;
             this.waitingList = sign.split("");
@@ -520,31 +428,27 @@ export default {
         this.resetReslutList();
       }
     }
-
-
-    if (this.waitingIndex == 0 ) {
-      this.color0 = 'rgb(13,132,255)'
-      this.color1 = 'white'
-      this.color2 = 'white'
-      this.color3 = 'white'
-    } else if (this.waitingIndex == 1 ){
-      this.color0 = 'white'
-      this.color1 = 'rgb(13,132,255)'
-      this.color2 = 'white'
-      this.color3 = 'white'
-    } else if (this.waitingIndex == 2 ){
-      this.color0 = 'white'
-      this.color1 = 'white'
-      this.color2 = 'rgb(13,132,255)'
-      this.color3 = 'white'
+    if (this.waitingIndex == 0) {
+      this.color0 = "rgb(13,132,255)";
+      this.color1 = "white";
+      this.color2 = "white";
+      this.color3 = "white";
+    } else if (this.waitingIndex == 1) {
+      this.color0 = "white";
+      this.color1 = "rgb(13,132,255)";
+      this.color2 = "white";
+      this.color3 = "white";
+    } else if (this.waitingIndex == 2) {
+      this.color0 = "white";
+      this.color1 = "white";
+      this.color2 = "rgb(13,132,255)";
+      this.color3 = "white";
     } else {
-      this.color0 = 'white'
-      this.color1 = 'white'
-      this.color2 = 'white'
-      this.color3 = 'rgb(13,132,255)'
+      this.color0 = "white";
+      this.color1 = "white";
+      this.color2 = "white";
+      this.color3 = "rgb(13,132,255)";
     }
-
-    // this.resetGbShow();
   },
   clearWaiting() {
     this.waitingList = [];
@@ -556,13 +460,11 @@ export default {
     if (this.lastWaitingStr && this.lastWaitingStr[this.waitingIndex]) {
       watingStr = this.lastWaitingStr[this.waitingIndex];
     }
-
     if (!(this.cval + watingStr) || this.lang != "cn") {
       this.resultList = [];
       this.setResultListAll();
       return;
     }
-
     this.getResultByWord(this.cval + watingStr);
   },
   setResultListAll() {
@@ -579,30 +481,19 @@ export default {
       this.resultList2.push(array);
     }
   },
-
   getResultByWord(val) {
     var that = this;
     doSearchDic(val, function (data) {
-      //console.log('搜索结果：' + JSON.stringify(data))
       that.resultList = data;
       that.setResultListAll();
     });
   },
   onSelect(num) {
-    
-    // this.$dispatch('keyDown',{
-    //   content:num
-    //     })
-    //this.abc=num
-
-    this.$emit('keyDown', {
-      content: num,
-    });
-    if (this.keyboardtype=='T9'){
+    this.$emit("keyDown", { content: num });
+    if (this.keyboardtype == "T9") {
       this.onBtnClick(num);
       return;
     }
-
     this.onVibrate();
     if (this.lang == "cn" && !this.numFlag) {
       this.cval += num.toLowerCase();
@@ -613,165 +504,135 @@ export default {
         this.addAllTxt(num.toLowerCase());
       }
     } else {
-      //this.abc=num
       this.addAllTxt(num);
     }
-    //this.clearWaiting();
     this.resetReslutList();
-
-    // this.resetGbShow();
   },
-  onSelectWaiting(num){
+  onSelectWaiting(num) {
     this.onVibrate();
-    if(this.lang == 'cn'){
-        this.cval += this.waitingList[num].toString();
+    if (this.lang == "cn") {
+      this.cval += this.waitingList[num].toString();
     } else {
-        if(this.upperFlag){
-            this.addAllTxt(this.waitingList[num].toUpperCase());
-        } else {
-            this.addAllTxt(this.waitingList[num].toLowerCase());
-        }
+      if (this.upperFlag) {
+        this.addAllTxt(this.waitingList[num].toUpperCase());
+      } else {
+        this.addAllTxt(this.waitingList[num].toLowerCase());
+      }
     }
-	  this.clearWaiting();
-	  this.resetReslutList();
+    this.clearWaiting();
+    this.resetReslutList();
   },
   onReslutSelect() {
     if (!this.allTxt) {
-      prompt.showToast({
-        message: "没有输入内容呢亲",
-        duration: 1000,
-      });
+      prompt.showToast({ message: "没有输入内容呢亲", duration: 1000 });
       return;
     }
-    router.push({
-      uri: "/pages/more",
-      params: { promptTxt: this.allTxt },
-    });
+    router.push({ uri: "/pages/more", params: { promptTxt: this.allTxt } });
   },
   onTextClick() {
     this.downFlag = "";
-    // this.listHeight = 158;
   },
   watchHidePropsChange(newV, oldV) {
-      // console.info(`监听Hide数据变化：`, newV, oldV)
-      // this.showFlag = !newV
-      this.$emit('visibilityChange', {
-        visible: !newV,
-      });
+    this.$emit("visibilityChange", { visible: !newV });
   },
   watchMaxLengthPropsChange(newV, oldV) {
-      // console.info(`监听Hide数据变化：`, newV, oldV)
-      if (newV) {
-        const tempCvalList = [];
-        for(let i = 0 ; i < newV ; i++ ){
-          tempCvalList.push(i);
-        }
-        this.cvalList = tempCvalList;
+    if (newV) {
+      const tempCvalList = [];
+      for (let i = 0; i < newV; i++) {
+        tempCvalList.push(i);
       }
-  },
-  onVibrate() {
-    if(this.vibratemode!=''){
-      vibrator.vibrate({
-        mode: this.vibratemode,
-      });
+      this.cvalList = tempCvalList;
     }
   },
-
+  onVibrate() {
+    if (this.vibratemode != "") {
+      vibrator.vibrate({ mode: this.vibratemode });
+    }
+  },
 };
 
 </script>
 
 <style>
 .page {
-  /* left:112px;
-  top:40px; */
 	width: 480px;
-  /* height: 321px; */
-  position: absolute;
-  left: 0px;
-  bottom: 0px;
+	position: absolute;
+	left: 0;
+	bottom: 0
 }
 
-/* 更多信息样式 */
 .more-info {
-  width: 324px;
-  
+	width: 324px
 }
 
 .item {
-  height: 52px;
-  flex: 1;
+	height: 52px;
+	flex: 1
 }
-
-
 
 .calbtn0 {
-	color: rgb(255,255,255);
+	color: #fff;
 	font-size: 28px;
-	/* font-weight: bold; */
 	background-color: rgba(38,38,38,0);
-	border-radius: 0px;
-	/* margin-right: 4px; */
+	border-radius: 0;
 	height: 52px;
-	width:52px;
-  text-align: center;
+	width: 52px;
+	text-align: center
 }
 
-
 .calbtnfull {
-	color: rgb(255,255,255);
+	color: #fff;
 	font-size: 24px;
-	font-weight: bold;
-	background-color: rgb(38,38,38);
+	font-weight: 700;
+	background-color: #262626;
 	border-radius: 12px;
 	margin-right: 4px;
 	height: 52px;
-	width:40px;
+	width: 40px;
 	text-align: center;
-  border: 3px solid rgba(255, 255, 255, 0.06);
+	border: 3px solid rgba(255,255,255,.06)
 }
 
 .calbtnt9 {
-	color: rgb(255,255,255);
+	color: #fff;
 	font-size: 25px;
-	font-weight: bold;
-	background-color: rgb(38,38,38);
+	font-weight: 700;
+	background-color: #262626;
 	border-radius: 999px;
 	margin-right: 4px;
 	width: 94px;
-  height: 60px;
+	height: 60px;
 	text-align: center;
-  border: 3px solid rgba(255, 255, 255, 0.06);
+	border: 3px solid rgba(255,255,255,.06)
 }
 
 .caltext {
 	text-align: left;
 	line-height: 38px;
-  lines: 1;
-  text-overflow: ellipsis;
-  color:rgb(13,132,255);
-  height: 45px;
-  font-size: 28px;
-  text-align: left;
-  font-weight:bold;
-  padding-left:8px;
+	lines: 1;
+	text-overflow: ellipsis;
+	color: #0d84ff;
+	height: 45px;
+	font-size: 28px;
+	text-align: left;
+	font-weight: 700;
+	padding-left: 8px
 }
 
 .list3 {
-  position: absolute;
-  top:38px;
-  left:78px;
-  width:324px;
-  height:160px;
-  flex-direction: column;
-  background-color:rgb(38,38,38);
-  border-radius: 12px;
+	position: absolute;
+	top: 38px;
+	left: 78px;
+	width: 324px;
+	height: 160px;
+	flex-direction: column;
+	background-color: #262626;
+	border-radius: 12px
 }
+
 .item3 {
-	width:324px;
-  height:52px;
-  /* flex-direction: column; */
-  /* background-color:rgb(99,99,99); */
+	width: 324px;
+	height: 52px
 }
 
 </style>
