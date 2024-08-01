@@ -205,9 +205,6 @@
 </template>
 
 <script>
-import router from "@system.router";
-import app from "@system.app";
-import prompt from "@system.prompt";
 import vibrator from "@system.vibrator";
 import { SimpleInputMethod } from "./assets/dicUtil.js";
 function doSearchDic(word, cb) {
@@ -218,28 +215,11 @@ function doSearchDic(word, cb) {
     cb([]);
   }
 }
-const maxLoadStr = 200;
-var preLoadData = {};
-var searchItem = "";
 function deleteLast(t) {
   if (t) {
     return t.substr(0, t.length - 1);
   }
   return "";
-}
-function getCurrentDate(date) {
-  var seperator1 = "-";
-  var year = date.getFullYear();
-  var month = date.getMonth() + 1;
-  var strDate = date.getDate();
-  if (month >= 1 && month <= 9) {
-    month = "0" + month;
-  }
-  if (strDate >= 0 && strDate <= 9) {
-    strDate = "0" + strDate;
-  }
-  var currentdate = year + seperator1 + month + seperator1 + strDate;
-  return currentdate;
 }
 var blinkFlag = false;
 export default {
@@ -304,9 +284,6 @@ export default {
     }
     blinkFlag = !blinkFlag;
   },
-  exit() {
-    app.terminate();
-  },
   addAllTxt(txt) {
     this.$emit("complete", { content: txt });
   },
@@ -332,122 +309,133 @@ export default {
   },
   onBtnClick(sign) {
     this.onVibrate();
-    if (sign == "AC") {
-      this.cval = "";
-      this.clearWaiting();
-      this.resetReslutList();
-    } else if (sign == "lang") {
-      if (this.lang == "cn") {
-        this.lang = "en";
-        this.wdTop = 257;
-      } else {
-        this.lang = "cn";
-        this.wdTop = 216;
-      }
-      this.cval = "";
-      this.clearWaiting();
-      this.resetReslutList();
-    } else if (sign == "D") {
-      if (this.waitingIndex >= 0) {
+    switch (sign) {
+      case "AC":
+        this.cval = "";
         this.clearWaiting();
         this.resetReslutList();
-      } else if (this.cval.length > 0) {
-        this.cval = deleteLast(this.cval);
-        this.resetReslutList();
-      } else {
-        this.$emit("delete", {});
-      }
-    } else if (sign == "space") {
-      this.addAllTxt(" ");
-    } else if (sign == "infos") {
-      router.push({ uri: "/pages/about", params: {} });
-    } else if (sign == "down") {
-      if (this.downFlag == "down") {
-        this.downFlag = "";
-      } else {
-        this.downFlag = "down";
-      }
-    } else if (sign == "select") {
-      if (this.lastWaitingStr != sign && this.lastWaitingStr) {
+        break;
+      case "lang":
         if (this.lang == "cn") {
-          this.cval += this.waitingList[this.waitingIndex];
+          this.lang = "en";
+          this.wdTop = 257;
         } else {
-          if (this.upperFlag) {
-            this.addAllTxt(this.waitingList[this.waitingIndex].toUpperCase());
-          } else {
-            this.addAllTxt(this.waitingList[this.waitingIndex].toLowerCase());
-          }
+          this.lang = "cn";
+          this.wdTop = 216;
         }
+        this.cval = "";
         this.clearWaiting();
         this.resetReslutList();
-      }
-    } else if (sign == "switchNum") {
-      this.numFlag = true;
-      this.cval = "";
-      this.clearWaiting();
-      this.resetReslutList();
-    } else if (sign == "switchCn") {
-      this.numFlag = false;
-    } else if (sign == "switchUpper") {
-      this.upperFlag = true;
-    } else if (sign == "switchLow") {
-      this.upperFlag = false;
-    } else {
-      if (sign.length == 1) {
-        this.addAllTxt(sign);
-      } else {
+        break;
+      case "D":
         if (this.waitingIndex >= 0) {
-          if (this.lastWaitingStr == sign) {
-            this.waitingIndex++;
-            if (this.waitingIndex >= this.lastWaitingStr.length) {
+          this.clearWaiting();
+          this.resetReslutList();
+        } else if (this.cval.length > 0) {
+          this.cval = deleteLast(this.cval);
+          this.resetReslutList();
+        } else {
+          this.$emit("delete", {});
+        }
+        break;
+      case "space":
+        this.addAllTxt(" ");
+        break;
+      case "down":
+        this.downFlag = this.downFlag == "down" ? "" : "down";
+        break;
+      case "select":
+        if (this.lastWaitingStr != sign && this.lastWaitingStr) {
+          if (this.lang == "cn") {
+            this.cval += this.waitingList[this.waitingIndex];
+          } else {
+            if (this.upperFlag) {
+              this.addAllTxt(this.waitingList[this.waitingIndex].toUpperCase());
+            } else {
+              this.addAllTxt(this.waitingList[this.waitingIndex].toLowerCase());
+            }
+          }
+          this.clearWaiting();
+          this.resetReslutList();
+        }
+        break;
+      case "switchNum":
+        this.numFlag = true;
+        this.cval = "";
+        this.clearWaiting();
+        this.resetReslutList();
+        break;
+      case "switchCn":
+        this.numFlag = false;
+        break;
+      case "switchUpper":
+        this.upperFlag = true;
+        break;
+      case "switchLow":
+        this.upperFlag = false;
+        break;
+      default:
+        if (sign.length == 1) {
+          this.addAllTxt(sign);
+        } else {
+          if (this.waitingIndex >= 0) {
+            if (this.lastWaitingStr == sign) {
+              this.waitingIndex++;
+              if (this.waitingIndex >= this.lastWaitingStr.length) {
+                this.waitingIndex = 0;
+              }
+            } else {
+              if (this.lang == "cn") {
+                this.cval += this.waitingList[this.waitingIndex];
+              } else {
+                if (this.upperFlag) {
+                  this.addAllTxt(
+                    this.waitingList[this.waitingIndex].toUpperCase(),
+                  );
+                } else {
+                  this.addAllTxt(
+                    this.waitingList[this.waitingIndex].toLowerCase(),
+                  );
+                }
+              }
+              this.lastWaitingStr = sign;
               this.waitingIndex = 0;
+              this.waitingList = sign.split("");
             }
           } else {
-            if (this.lang == "cn") {
-              this.cval += this.waitingList[this.waitingIndex];
-            } else {
-              if (this.upperFlag) {
-                this.addAllTxt(
-                  this.waitingList[this.waitingIndex].toUpperCase(),
-                );
-              } else {
-                this.addAllTxt(
-                  this.waitingList[this.waitingIndex].toLowerCase(),
-                );
-              }
-            }
             this.lastWaitingStr = sign;
             this.waitingIndex = 0;
             this.waitingList = sign.split("");
           }
-        } else {
-          this.lastWaitingStr = sign;
-          this.waitingIndex = 0;
-          this.waitingList = sign.split("");
+          this.resetReslutList();
         }
-        this.resetReslutList();
-      }
+        break;
     }
-    if (this.waitingIndex == 0) {
-      this.color0 = "rgb(13,132,255)";
-      this.color1 = "white";
-      this.color2 = "white";
-      this.color3 = "white";
-    } else if (this.waitingIndex == 1) {
-      this.color0 = "white";
-      this.color1 = "rgb(13,132,255)";
-      this.color2 = "white";
-      this.color3 = "white";
-    } else if (this.waitingIndex == 2) {
-      this.color0 = "white";
-      this.color1 = "white";
-      this.color2 = "rgb(13,132,255)";
-      this.color3 = "white";
-    } else {
-      this.color0 = "white";
-      this.color1 = "white";
-      this.color2 = "white";
-      this.color3 = "rgb(13,132,255)";
+    switch (this.waitingIndex) {
+      case 0:
+        this.color0 = "rgb(13,132,255)";
+        this.color1 = "white";
+        this.color2 = "white";
+        this.color3 = "white";
+        break;
+      case 1:
+        this.color0 = "white";
+        this.color1 = "rgb(13,132,255)";
+        this.color2 = "white";
+        this.color3 = "white";
+        break;
+      case 2:
+        this.color0 = "white";
+        this.color1 = "white";
+        this.color2 = "rgb(13,132,255)";
+        this.color3 = "white";
+        break;
+      default:
+        this.color0 = "white";
+        this.color1 = "white";
+        this.color2 = "white";
+        this.color3 = "rgb(13,132,255)";
+        break;
     }
   },
   clearWaiting() {
@@ -522,16 +510,6 @@ export default {
     this.clearWaiting();
     this.resetReslutList();
   },
-  onReslutSelect() {
-    if (!this.allTxt) {
-      prompt.showToast({ message: "没有输入内容呢亲", duration: 1000 });
-      return;
-    }
-    router.push({ uri: "/pages/more", params: { promptTxt: this.allTxt } });
-  },
-  onTextClick() {
-    this.downFlag = "";
-  },
   watchHidePropsChange(newV, oldV) {
     this.$emit("visibilityChange", { visible: !newV });
   },
@@ -583,7 +561,7 @@ export default {
 .calbtnfull {
 	color: #fff;
 	font-size: 24px;
-	font-weight: 700;
+	font-weight: bold;
 	background-color: #262626;
 	border-radius: 12px;
 	margin-right: 4px;
@@ -596,7 +574,7 @@ export default {
 .calbtnt9 {
 	color: #fff;
 	font-size: 25px;
-	font-weight: 700;
+	font-weight: bold;
 	background-color: #262626;
 	border-radius: 999px;
 	margin-right: 4px;
@@ -615,7 +593,7 @@ export default {
 	height: 45px;
 	font-size: 28px;
 	text-align: left;
-	font-weight: 700;
+	font-weight: bold;
 	padding-left: 8px
 }
 
