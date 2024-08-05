@@ -41,17 +41,19 @@ input-method
 
 ## ⽰例代码
 ```html
-<import name="input-method" src="../../components/InputMethod/InputMethod.ux""></import>
+<import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
 <template>
   <div class="page" style="flex-direction: column;">
-    <text style="position:absolute;left:0;top:60px;width:100%;height:80px;text-align:center;background-color: red;" @click="changeState">{{textValue}}_</text>
+    <text style="position:absolute;left:0;top:60px;width:100%;height:80px;text-align:center;background-color: red;" @click="changeState">
+      {{textValue}}_
+    </text>
     <input-method
       hide="{{hide}}"
       keyboardtype="{{keyboardtype}}"
       maxlength="6"
       vibratemode="{{vibratemode}}"
-      @visibilityChange="visibilityChange"
-      @keyDown="keyDown"
+      @visibility-change="visibilityChange"
+      @key-down="keyDown"
       @delete="delete"
       @complete="complete"
     ></input-method>
