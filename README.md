@@ -30,6 +30,7 @@ input-method
 | keyboardtype | string | "QWERTY" | 否 | 键盘布局，“QWERTY”表⽰全键，“T9”表⽰九键。默认为"QWERTY" |
 | maxlength | number | 5 | 否 | 默认展⽰的拼⾳候选词数量， maxlength>0时有效；点击展开查看所有候选词 |
 | vibratemode | string | "" | 否 | 振动模式，""表⽰输⼊时不振动，"long"表⽰⻓振动，"short"表⽰短振动 |
+| screentype | string | "circle" | 否 | 设备屏幕类型，"circle"表⽰圆屏（n62），"horizontal"表⽰方屏（m67），"arc"表⽰胶囊屏（n66） |
 
 ## 事件
 | 名称 | 参数 | 描述 |
@@ -44,19 +45,22 @@ input-method
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
 <template>
   <div class="page" style="flex-direction: column;">
-    <text style="position:absolute;left:0;top:60px;width:100%;height:80px;text-align:center;background-color: red;" @click="changeState">
-      {{textValue}}_
-    </text>
-    <input-method
-      hide="{{hide}}"
-      keyboardtype="{{keyboardtype}}"
-      maxlength="6"
-      vibratemode="{{vibratemode}}"
-      @visibility-change="visibilityChange"
-      @key-down="keyDown"
-      @delete="delete"
-      @complete="complete"
-    ></input-method>
+    <div style="position: absolute;width:480px;height:480px;background-color: grey;">
+      <text class="text" @click="changeState">
+        {{textValue}}_
+      </text>
+      <input-method
+        hide="{{hide}}"
+        keyboardtype="{{keyboardtype}}"
+        maxlength="5"
+        vibratemode="{{vibratemode}}"
+        screentype="{{screentype}}"
+        @visibility-change="visibilityChange"
+        @key-down="keyDown"
+        @delete="delete"
+        @complete="complete"
+      ></input-method>
+    </div>
   </div>
 </template>
 
@@ -67,6 +71,7 @@ export default {
     hide: false,
     keyboardtype: "QWERTY",
     vibratemode: "short",
+    screentype: "circle",
   },
   visibilityChange(evt) {
     console.log("onVisibilityChange:"+JSON.stringify(evt));
@@ -87,12 +92,24 @@ export default {
     console.log("onComplete:"+JSON.stringify(evt));
   },
 };
+
 </script>
 
 <style>
 .page{
-	width:480px;
-	height:480px;
+  width:480px;
+  height:480px;
 }
+
+.text{
+  position:absolute;
+  left:0;
+  top:60px;
+  width:100%;
+  height:80px;
+  text-align:center;
+  background-color: red;
+}
+
 </style>
 ```
