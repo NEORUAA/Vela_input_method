@@ -1,6 +1,7 @@
 <template>
   <div class="page" style="flex-direction: column;">
-    <div style="background-color:black" show="{{!hide}}">
+    <!-- 这里使用show会导致收起键盘时下半区域无法滑动 -->
+    <div style="background-color:black" if="{{!hide}}">
       <!-- 圆屏62 -->
       <div if="{{screentype==='circle'}}" style="width: 480px;height: 321px;">
         <!-- 全键盘 -->
