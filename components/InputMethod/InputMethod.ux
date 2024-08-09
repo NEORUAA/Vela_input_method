@@ -13,10 +13,10 @@
           <div style="position: absolute;top:38px;left:78px;width:324px;height:52px;background-color:rgb(38,38,38);border-radius: 12px;border: 3px solid rgba(255, 255, 255, 0.06);" show="{{downFlag===''&& !numFlag}}"></div>
           <img show="{{resultList.length > 0}}" style="position: absolute;top:43px;left:355px;" src="./assets/full/down.png" @click="onBtnClick('down')" />
           <img src="./assets/full/{{lang}}.png" style="position: absolute;top:38px;left:7px;width:67px;height:52px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag}}" />
-          <div class="more-info" style="position: absolute;top:-4px;left:78px;width:324px;" show="{{downFlag==='' && !numFlag}}">
-            <text show="{{cval}}" class="caltext" style="width:296px;"> {{cval}}_ </text>
+          <div style="position: absolute;top:-4px;left:78px;width:324px;" show="{{downFlag==='' && !numFlag && cval}}">
+            <text class="caltext" style="width:296px;"> {{cval}}_ </text>
           </div>
-          <div class="more-info" style="position: absolute;top:38px;left:80px;width:277px" show="{{lang === 'cn'&& !numFlag}}">
+          <div style="position: absolute;top:38px;left:80px;width:277px" show="{{lang === 'cn'&& !numFlag}}">
             <div class="item column center" for="{{cvalList}}">
               <input show='{{resultList.length > $idx}}' class="calbtn0" type="button" value="{{resultList[$idx]}}" @click="onRsSelect(resultList[$idx])" />
             </div>
@@ -74,16 +74,13 @@
           <div style="position: absolute;top:35px;left:95px;width:290px;height:60px;background-color:rgb(38,38,38);border-radius: 999px;border: 3px solid rgba(255, 255, 255, 0.06);" show="{{downFlag===''&& !numFlag}}"></div>
           <img show="{{resultList.length > 0}}" style="position: absolute;top:44px;left:338px;" src="./assets/full/down.png" @click="onBtnClick('down')" />
           <img src="./assets/t9/{{lang}}.png" style="position: absolute;top:35px;left:31px;width: 60px;height: 60px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag}}" />
-          <div style="position: absolute;top:-4px;left:95px;width:145px;height:40px;" show="{{downFlag==='' && !numFlag}}">
-            <text show="{{cval}}" class="caltext" style="width:145px;"> {{cval}}_ </text>
+          <div style="position: absolute;top:-4px;left:95px;width:145px;height:40px;" show="{{downFlag==='' && !numFlag && cval}}">
+            <text class="caltext" style="width:145px;"> {{cval}}_ </text>
           </div>
           <div show="{{downFlag==='' && !numFlag}}" style="position: absolute;top:-4px;left:240px;width:145px;height:40px;justify-content:flex-end">
-            <text if='{{waitingList.length > 0}}' style="color:{{color0}};width:36px;height:40px;text-align: center;" @click="onSelectWaiting(0)">{{waitingList[0]}}</text>
-            <text if='{{waitingList.length > 1}}' style="color:{{color1}};width:36px;height:40px;text-align: center;" @click="onSelectWaiting(1)">{{waitingList[1]}}</text>
-            <text if='{{waitingList.length > 2}}' style="color:{{color2}};width:36px;height:40px;text-align: center;" @click="onSelectWaiting(2)">{{waitingList[2]}}</text>
-            <text if='{{waitingList.length > 3}}' style="color:{{color3}};width:36px;height:40px;text-align: center;" @click="onSelectWaiting(3)">{{waitingList[3]}}</text>
+            <text for="{{waitingList}}" class="waiting-keys" style="color:{{$idx===waitingIndex ? 'rgb(13,132,255)' : 'white'}};" @click="onSelectWaiting($idx)">{{waitingList[$idx]}}</text>
           </div>
-          <div class="more-info" style="position: absolute;top:39px;left:105px;width:233px" show="{{lang === 'cn'&& !numFlag}}">
+          <div style="position: absolute;top:39px;left:105px;width:233px" show="{{lang === 'cn'&& !numFlag}}">
             <div class="item column center" for="{{cvalList}}">
               <input show='{{resultList.length > $idx}}' class="calbtn0" type="button" value="{{resultList[$idx]}}" @click="onRsSelect(resultList[$idx])" />
             </div>
@@ -133,7 +130,7 @@
       </div>
       <!-- 方屏67 -->
       <div if="{{screentype==='horizontal'}}" style="width: 336px;height: 255px;">
-        <div style="position:absolute;left:0px;top:-11px;width:336px;height:276px;">
+        <div static style="position:absolute;left:0px;top:-11px;width:336px;height:276px;">
           <progress percent="{{percent67}}" style="position: absolute;width:80px;top:258px;left:128px;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
           <scroll id="keyboard67" scroll-x="{{true}}" onscroll="handelScroll">
             <div if="{{!numFlag}}" style="left: 6px;width:640px;height:170px;">
@@ -163,7 +160,7 @@
         </div>
         <img show="{{lang === 'cn' && !numFlag}}" style="position: absolute;left: 72px;top: 6px;width: 192px;height: 60px;" src="./assets/horizontal/search.png" />
         <scroll id="cvalWaiting" scroll-x="{{true}}" style="position: absolute;left: 82px;top: 15px;width: 157px;height: 42px;">
-          <div style="position: absolute;left: 0px;top: 0px;height: 42px;padding-right:20px">
+          <div static style="position: absolute;left: 0px;top: 0px;height: 42px;padding-right:20px">
             <text class="calbtn02" style="padding-right:10px" @click="pushCval">{{cval}}</text>
             <text for="{{cvalList}}" show="{{resultList.length > $idx}}" class="calbtn02" style="padding-right:10px" @click="onRsSelect(resultList[$idx])">{{resultList[$idx]}}</text>
           </div>
@@ -178,8 +175,8 @@
         <img else src="./assets/horizontal/del2.png" style="position: absolute;left: 171px;top: 6px;width: 159px;height: 60px;" @click="onBtnClick('D')" />
         <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
         <div style="position: absolute;left: 0px;top: 6px;width: 336px;height: 249px;background-color: black;" if="{{downFlag==='down'}}">
-          <div class="list67">
-            <list style="width:100%;height:100%;">
+          <div static class="list67">
+            <list static style="width:100%;height:100%;">
               <list-item class="item67" for="{{itemArray in resultList2}}">
                 <div class="item column center" for="{{item in itemArray}}">
                   <input class="calbtn02" type="button" value="{{item}}" @click="onRsSelect(item)" />
@@ -236,7 +233,7 @@
         <img src="./assets/arc/del.png" style="position: absolute;left: 135px;top: 0px;width: 48px;height: 42px;" @click="onBtnClick('D')" />
         <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
         <div style="position: absolute;left: 0px;top: 47px;width: 192px;height: 263px;background-color: black;" if="{{downFlag==='down'}}">
-          <list class="list66">
+          <list static class="list66">
             <list-item class="item66" for="{{itemArray in resultList2}}">
               <div class="item column center" for="{{item in itemArray}}">
                 <input class="calbtn0" type="button" value="{{item}}" @click="onRsSelect(item)" />
@@ -254,7 +251,7 @@
 import vibrator from "@system.vibrator";
 import { SimpleInputMethod } from "./assets/dicUtil.js";
 function doSearchDic(word, cb) {
-  var hanzi = SimpleInputMethod.getHanzi(word);
+  let hanzi = SimpleInputMethod.getHanzi(word);
   if (hanzi && hanzi[0]) {
     cb(hanzi[0]);
   } else {
@@ -267,7 +264,6 @@ function deleteLast(t) {
   }
   return "";
 }
-var blinkFlag = false;
 export default {
   props: {
     hide: {
@@ -287,29 +283,16 @@ export default {
     },
   },
   data: {
-    allTxt: "",
-    allTxtShow: "",
     cval: "",
-    eqflag: false,
     resultList: [],
     resultList2: [],
     waitingList: [],
     waitingIndex: -1,
     lastWaitingStr: "",
     downFlag: "",
-    hasDicFile: true,
-    debug: false,
     lang: "cn",
-    wdTop: 216,
     numFlag: false,
     upperFlag: false,
-    gbIndex: 0,
-    color0: "white",
-    color1: "white",
-    color2: "white",
-    color3: "white",
-    abc: "test",
-    vibrate: "",
     cvalList: [0, 1, 2, 3, 4],
     percent67: 52,
     percent66: 0,
@@ -374,10 +357,8 @@ export default {
       case "lang":
         if (this.lang === "cn") {
           this.lang = "en";
-          this.wdTop = 257;
         } else {
           this.lang = "cn";
-          this.wdTop = 216;
         }
         this.cval = "";
         this.clearWaiting();
@@ -467,32 +448,6 @@ export default {
         }
         break;
     }
-    switch (this.waitingIndex) {
-      case 0:
-        this.color0 = "rgb(13,132,255)";
-        this.color1 = "white";
-        this.color2 = "white";
-        this.color3 = "white";
-        break;
-      case 1:
-        this.color0 = "white";
-        this.color1 = "rgb(13,132,255)";
-        this.color2 = "white";
-        this.color3 = "white";
-        break;
-      case 2:
-        this.color0 = "white";
-        this.color1 = "white";
-        this.color2 = "rgb(13,132,255)";
-        this.color3 = "white";
-        break;
-      default:
-        this.color0 = "white";
-        this.color1 = "white";
-        this.color2 = "white";
-        this.color3 = "rgb(13,132,255)";
-        break;
-    }
   },
   clearWaiting() {
     this.waitingList = [];
@@ -507,7 +462,7 @@ export default {
         behavior: "smooth",
       });
     }
-    var watingStr = "";
+    let watingStr = "";
     if (this.lastWaitingStr && this.lastWaitingStr[this.waitingIndex]) {
       watingStr = this.lastWaitingStr[this.waitingIndex];
     }
@@ -520,8 +475,8 @@ export default {
   },
   setResultListAll() {
     this.resultList2 = [];
-    var array = [];
-    for (var i = 0; i < this.resultList.length; i++) {
+    let array = [];
+    for (let i = 0; i < this.resultList.length; i++) {
       array.push(this.resultList[i]);
       if (array.length === parseInt(this.maxlength)) {
         this.resultList2.push(array);
@@ -533,7 +488,7 @@ export default {
     }
   },
   getResultByWord(val) {
-    var that = this;
+    const that = this;
     doSearchDic(val, function (data) {
       that.resultList = data;
       that.setResultListAll();
@@ -613,9 +568,6 @@ export default {
 	position:absolute;
 	left:0;
 	bottom:0
-}
-.more-info {
-	width:324px
 }
 .item {
 	height:52px;
@@ -753,5 +705,10 @@ export default {
 }
 .item66 {
 	height:42px;
+}
+.waiting-keys {
+	width:36px;
+	height:40px;
+	text-align: center;
 }
 </style>

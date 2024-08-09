@@ -1,6 +1,6 @@
 import { dict } from './dic.js'
 
-var SimpleInputMethod = {
+let SimpleInputMethod = {
     dict: {}
 }
 
