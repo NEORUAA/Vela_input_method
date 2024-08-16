@@ -129,7 +129,7 @@
         </div>
       </div>
       <!-- 方屏67 -->
-      <div if="{{screentype==='horizontal'}}" style="width: 336px;height: 255px;">
+      <div if="{{screentype==='rect'}}" style="width: 336px;height: 255px;">
         <div static style="position:absolute;left:0px;top:-11px;width:336px;height:276px;">
           <progress percent="{{percent67}}" style="position: absolute;width:80px;top:258px;left:128px;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
           <scroll id="keyboard67" scroll-x="{{true}}" onscroll="handelScroll">
@@ -188,7 +188,7 @@
         </div>
       </div>
       <!-- 胶囊屏66 -->
-      <div if="{{screentype==='arc'}}" style="width: 192px;height: 305px">
+      <div if="{{screentype==='pill-shaped'}}" style="width: 192px;height: 305px">
         <div static style="position:absolute;left:0px;top:34px;width:192px;height:276px;">
           <progress percent="{{30+percent66}}" type="arc" style="start-angle:204deg;total-angle:-48deg;width:188px;height:188px;top:86px;left:2px;position:absolute;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
           <scroll id="keyboard66" scroll-x="{{true}}" onscroll="handelScroll">

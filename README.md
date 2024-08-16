@@ -27,40 +27,38 @@ input-method
 | 名称 | 类型 | 默认值 | 必填 | 描述 |
 | --------  | :----:  | :----:  | :----:  | :---- |
 | hide | boolean | true | 是 | 是否显⽰键盘（开发者可以通过切换属性值隐藏或者唤醒键盘） |
-| keyboardtype | string | "QWERTY" | 否 | 键盘布局，“QWERTY”表⽰全键，“T9”表⽰九键。默认为"QWERTY" |
-| maxlength | number | 5 | 否 | 默认展⽰的拼⾳候选词数量， maxlength>0时有效；点击展开查看所有候选词 |
-| vibratemode | string | "" | 否 | 振动模式，""表⽰输⼊时不振动，"long"表⽰⻓振动，"short"表⽰短振动 |
-| screentype | string | "circle" | 否 | 设备屏幕类型，"circle"表⽰圆屏（n62），"horizontal"表⽰方屏（m67），"arc"表⽰胶囊屏（n66） |
+| keyboardtype | string | "QWERTY" | 否 | 键盘布局，"QWERTY" 表⽰全键，"T9" 表⽰九键。默认为 "QWERTY"（当 screentype 非 "circle" 时，仅全键盘可用） |
+| maxlength | number | 5 | 否 | 默认展⽰的拼⾳候选词数量， maxlength > 0 时有效；点击展开查看所有候选词 |
+| vibratemode | string | "" | 否 | 振动模式，""表⽰输⼊时不振动，"long" 表⽰⻓振动，"short" 表⽰短振动。默认为 "" |
+| screentype | string | "circle" | 否 | 设备屏幕类型，"rect" 表示方形屏（对应 designWidth 为 336px），"circle" 表示圆形屏（对应 designWidth 为 480px），"pill-shaped" 表示胶囊形屏（对应 designWidth 为 192px） |
 
 ## 事件
 | 名称 | 参数 | 描述 |
 | --------  | :-----  | :---- |
-| complete | { detail: { content: string } } | 键盘输出字符时触发（当切换为中⽂输⼊法时候，当选中拼⾳对应⽂字时触发；当切换为英⽂输⼊法时，与keyDown触发条件⼀致）|
+| complete | { detail: { content: string } } | 键盘输出字符时触发（当切换为中⽂输⼊法时候，当选中拼⾳对应⽂字时触发；当切换为英⽂输⼊法时，与 keyDown 触发条件⼀致）|
 | delete | - | 键盘点击删除按钮触发 |
 | keyDown | { detail: { content: string } } | 键盘按钮按下时触发 |
-| visibilityChange | { detail: { visible: boolean } } | 键盘显示或隐藏时触发，visible表⽰显示状态 |
+| visibilityChange | { detail: { visible: boolean } } | 键盘显示或隐藏时触发，visible 表⽰显示状态 |
 
 ## ⽰例代码
 ```html
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
 <template>
   <div class="page" style="flex-direction: column;">
-    <div style="position: absolute;width:480px;height:480px;background-color: grey;">
-      <text class="text" @click="changeState">
-        {{textValue}}_
-      </text>
-      <input-method
-        hide="{{hide}}"
-        keyboardtype="{{keyboardtype}}"
-        maxlength="5"
-        vibratemode="{{vibratemode}}"
-        screentype="{{screentype}}"
-        @visibility-change="visibilityChange"
-        @key-down="keyDown"
-        @delete="delete"
-        @complete="complete"
-      ></input-method>
-    </div>
+    <text class="text" @click="changeState">
+      {{textValue}}_
+    </text>
+    <input-method
+      hide="{{hide}}"
+      keyboardtype="{{keyboardtype}}"
+      maxlength="5"
+      vibratemode="{{vibratemode}}"
+      screentype="{{screentype}}"
+      @visibility-change="visibilityChange"
+      @key-down="keyDown"
+      @delete="delete"
+      @complete="complete"
+    ></input-method>
   </div>
 </template>
 
@@ -92,7 +90,6 @@ export default {
     console.log("onComplete:"+JSON.stringify(evt));
   },
 };
-
 </script>
 
 <style>
@@ -110,6 +107,5 @@ export default {
   text-align:center;
   background-color: red;
 }
-
 </style>
 ```
