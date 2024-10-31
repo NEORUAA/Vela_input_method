@@ -204,14 +204,14 @@
                 <img static src="./assets/arc/space.png" style="width: 60px;height: 60px;" @click="onBtnClick('space')" />
               </div>
             </div>
-            <div else style="left: 3px;width:630px;height:170px;">
+            <div else style="left: 3px;width:660px;height:170px;">
               <div static style="position: absolute;left: 0px;top: 0px;width: 630px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['sign'][0]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 32px;top: 55px;width: 567px;height: 60px;">
+              <div static style="position: absolute;left: 32px;top: 55px;width: 627px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['sign'][1]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 64px;top: 110px;width: 504px;height: 60px;">
+              <div static style="position: absolute;left: 64px;top: 110px;width: 564px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['sign'][2]}}" @click="onSelect(item)">{{item}}</text>
               </div>
             </div>
