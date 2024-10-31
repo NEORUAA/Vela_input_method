@@ -145,14 +145,14 @@
                 <img static src="./assets/horizontal/space.png" style="width: 60px;height: 60px;" @click="onBtnClick('space')" />
               </div>
             </div>
-            <div else style="left: 6px;width:640px;height:170px;">
-              <div static style="position: absolute;left: 0px;top: 0px;width: 640px;height: 60px;">
+            <div else style="left: 6px;width:{{Math.max(keys['sign'][0].length*64, keys['sign'][1].length*64+32, keys['sign'][2].length*64+64)}}px;height:170px;">
+              <div static style="position: absolute;left: 0px;top: 0px;width: {{keys['sign'][0].length*64}}px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['sign'][0]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 32px;top: 55px;width: 576px;height: 60px;">
+              <div static style="position: absolute;left: 32px;top: 55px;width: {{keys['sign'][1].length*64}}px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['sign'][1]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 64px;top: 110px;width: 516px;height: 60px;">
+              <div static style="position: absolute;left: 64px;top: 110px;width: {{keys['sign'][2].length*64}}px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['sign'][2]}}" @click="onSelect(item)">{{item}}</text>
               </div>
             </div>
@@ -304,8 +304,8 @@ export default {
       ],
       sign: [
         ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-        ["~", "!", "@", "#", "%", "“", "”", "*", "?"],
-        ["(", ")", "-", "_", ":", ";", "，", "。"],
+        ["~", "!", "@", "#", "%", "“", "”", "*", "?", "/"],
+        ["(", ")", "-", "_", ":", ";", "，", "。", "."],
       ],
       sign62: [
         ["2", "3", "4", "5", "6", "7", "8", "9"],
