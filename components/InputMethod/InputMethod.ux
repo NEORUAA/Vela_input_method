@@ -133,26 +133,26 @@
         <div static style="position:absolute;left:0px;top:-11px;width:336px;height:276px;">
           <progress percent="{{percent67}}" style="position: absolute;width:80px;top:258px;left:128px;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
           <scroll id="keyboard67" scroll-x="{{true}}" onscroll="handelScroll">
-            <div if="{{!numFlag}}" style="left: 6px;width:640px;height:170px;">
-              <div static style="position: absolute;left: 0px;top: 0px;width: 640px;height: 60px;">
+            <div if="{{!numFlag}}" style="left: 6px; flex-direction: column;">
+              <div static style="margin-left: 0px;margin-top: 0px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['full'][0]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 32px;top: 55px;width: 576px;height: 60px;">
+              <div static style="margin-left: 32px;margin-top: -5px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['full'][1]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 64px;top: 110px;width: 516px;height: 60px;">
+              <div static style="margin-left: 64px;margin-top: -5px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['full'][2]}}" @click="onSelect(item)">{{item}}</text>
                 <img static src="./assets/horizontal/space.png" style="width: 60px;height: 60px;" @click="onBtnClick('space')" />
               </div>
             </div>
-            <div else style="left: 6px;width:{{Math.max(keys['sign'][0].length*64, keys['sign'][1].length*64+32, keys['sign'][2].length*64+64)}}px;height:170px;">
-              <div static style="position: absolute;left: 0px;top: 0px;width: {{keys['sign'][0].length*64}}px;height: 60px;">
+            <div else style="left: 6px; flex-direction: column;">
+              <div static style="margin-left: 0px;margin-top: 0px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['sign'][0]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 32px;top: 55px;width: {{keys['sign'][1].length*64}}px;height: 60px;">
+              <div static style="margin-left: 32px;margin-top: -5px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['sign'][1]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 64px;top: 110px;width: {{keys['sign'][2].length*64}}px;height: 60px;">
+              <div static style="margin-left: 64px;margin-top: -5px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['sign'][2]}}" @click="onSelect(item)">{{item}}</text>
               </div>
             </div>
@@ -192,26 +192,26 @@
         <div static style="position:absolute;left:0px;top:34px;width:192px;height:276px;">
           <progress percent="{{30+percent66}}" type="arc" style="start-angle:204deg;total-angle:-48deg;width:188px;height:188px;top:86px;left:2px;position:absolute;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
           <scroll id="keyboard66" scroll-x="{{true}}" onscroll="handelScroll">
-            <div if="{{!numFlag}}" style="left: 3px;width:630px;height:170px;">
-              <div static style="position: absolute;left: 0px;top: 0px;width: 630px;height: 60px;">
+            <div if="{{!numFlag}}" style="left: 3px; flex-direction: column;">
+              <div static style="margin-left: 0px;margin-top: 0px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['full'][0]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 32px;top: 55px;width: 567px;height: 60px;">
+              <div static style="margin-left: 32px;margin-top: -5px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['full'][1]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 64px;top: 110px;width: 504px;height: 60px;">
+              <div static style="margin-left: 64px;margin-top: -5px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['full'][2]}}" @click="onSelect(item)">{{item}}</text>
                 <img static src="./assets/arc/space.png" style="width: 60px;height: 60px;" @click="onBtnClick('space')" />
               </div>
             </div>
-            <div else style="left: 3px;width:660px;height:170px;">
-              <div static style="position: absolute;left: 0px;top: 0px;width: 630px;height: 60px;">
+            <div else style="left: 3px; flex-direction: column;">
+              <div static style="margin-left: 0px;margin-top: 0px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['sign'][0]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 32px;top: 55px;width: 627px;height: 60px;">
+              <div static style="margin-left: 32px;margin-top: -5px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['sign'][1]}}" @click="onSelect(item)">{{item}}</text>
               </div>
-              <div static style="position: absolute;left: 64px;top: 110px;width: 564px;height: 60px;">
+              <div static style="margin-left: 64px;margin-top: -5px;height: 60px;">
                 <text class="calbtn66" for="{{item in keys['sign'][2]}}" @click="onSelect(item)">{{item}}</text>
               </div>
             </div>
