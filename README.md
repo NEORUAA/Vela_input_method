@@ -54,10 +54,10 @@ input-method
       maxlength="5"
       vibratemode="{{vibratemode}}"
       screentype="{{screentype}}"
-      @visibility-change="visibilityChange"
-      @key-down="keyDown"
-      @delete="delete"
-      @complete="complete"
+      @visibility-change="onVisibilityChange"
+      @key-down="onKeyDown"
+      @delete="onDelete"
+      @complete="onComplete"
     ></input-method>
   </div>
 </template>
@@ -67,29 +67,30 @@ export default {
   private: {
     textValue: "",
     hide: false,
-    keyboardtype: "QWERTY",
+    keyboardtype: "QWERTY", //QWERTY, T9
     vibratemode: "short",
-    screentype: "circle",
+    screentype: "circle", //pill-shaped, rect, circle
   },
-  visibilityChange(evt) {
-    console.log("onVisibilityChange:"+JSON.stringify(evt));
+  onVisibilityChange(evt) {
+    console.log("显示状态变更:"+JSON.stringify(evt));
   },
-  keyDown(evt) {
+  onKeyDown(evt) {
     // this.textValue += evt.detail.content;
-    console.log("onKeyDown:"+JSON.stringify(evt));
+    console.log("按下按键:"+JSON.stringify(evt));
   },
-  delete() {
+  onDelete() {
     this.textValue = this.textValue.slice(0, -1);
     console.log("删除字符");
   },
   changeState() {
     this.hide = !this.hide;
   },
-  complete(evt) {
+  onComplete(evt) {
     this.textValue += evt.detail.content;
-    console.log("onComplete:"+JSON.stringify(evt));
+    console.log("返回字符:"+JSON.stringify(evt));
   },
 };
+
 </script>
 
 <style>
@@ -105,7 +106,9 @@ export default {
   width:100%;
   height:80px;
   text-align:center;
+  color:white;
   background-color: red;
 }
+</style>
 </style>
 ```
