@@ -135,10 +135,10 @@
         </div>
       </div>
       <!-- 方屏67 -->
-      <div if="{{screentype==='rect'}}" style="width: 336px;height: 255px;">
-        <div static style="position:absolute;left:0px;top:-11px;width:336px;height:276px;">
-          <progress percent="{{percent67}}" style="position: absolute;width:80px;top:258px;left:128px;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
-          <scroll id="keyboard67" scroll-x="{{true}}" onscroll="handelScroll">
+      <div if="{{screentype==='rect'}}" style="width: {{screenWidthRect}}px;height: 255px;flex-direction: column">
+        <div static style="position:absolute;top:-11px;width:{{screenWidthRect}}px;height:276px;justify-content: center">
+          <progress percent="{{percent67}}" style="position:absolute;bottom: 15px;width:80px;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
+          <scroll id="keyboard67" scroll-x="{{true}}" onscroll="handelScroll" style="width: {{screenWidthRect}}px">
             <div if="{{!numFlag}}" style="left: 6px; flex-direction: column;">
               <div static style="margin-left: 0px;margin-top: 0px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['full'][0]}}" @click="onSelect(item)">{{item}}</text>
@@ -164,26 +164,30 @@
             </div>
           </scroll>
         </div>
-        <img show="{{lang === 'cn' && !numFlag}}" style="position: absolute;left: 72px;top: 6px;width: 192px;height: 60px;" src="./assets/horizontal/search.png" />
-        <scroll id="cvalWaiting" scroll-x="{{true}}" style="position: absolute;left: 82px;top: 15px;width: 157px;height: 42px;">
-          <div static style="position: absolute;left: 0px;top: 0px;height: 42px;padding-right:20px">
-            <text class="calbtn02" style="padding-right:10px" @click="pushCval">{{cval}}</text>
-            <text for="{{cvalList}}" show="{{resultList.length > $idx}}" class="calbtn02" style="padding-right:10px" @click="onRsSelect(resultList[$idx])">{{resultList[$idx]}}</text>
+        <div style="width: {{screenWidthRect}}px; flex-direction: row; justify-content: center">
+          <img src="./assets/horizontal/cn.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='cn'}}" />
+          <div if="{{lang === 'cn' && !numFlag}}" style="margin-left: 6px;width: 60%;height: 60px;background-color:#262626;border-color: #333333; border-width: 3px; border-radius: 100px;flex-direction: row;align-items:center">
+            <scroll id="cvalWaiting" scroll-x="{{true}}" style="position:absolute;width: 85%;height: 42px;">
+              <div static style="position: absolute;left: 0px;height: 42px;padding-left:20px;padding-right:20px">
+                <text class="calbtn02" style="padding-right:10px" @click="pushCval">{{cval}}</text>
+                <text for="{{cvalList}}" show="{{resultList.length > $idx}}" class="calbtn02" style="padding-right:10px" @click="onRsSelect(resultList[$idx])">{{resultList[$idx]}}</text>
+              </div>
+            </scroll>
+            <img if="{{resultList.length > 0}}" style="position:absolute;right: 10px; width: 60px;height: 40px;" src="./assets/horizontal/down2.png" @click="onBtnClick('down')" />
           </div>
-        </scroll>
-        <img show="{{resultList.length > 0}}" style="position: absolute;left: 199px;top: 16px;width: 60px;height: 40px;" src="./assets/horizontal/down2.png" @click="onBtnClick('down')" />
-        <!-- 带变量的相对路径在 aiot-tookit 2.0.3 中编译出错，已反馈，暂时注释掉 -->
-        <!-- <img src="./assets/horizontal/{{lang}}.png" style="position: absolute;top:6px;left:6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag}}" /> -->
-        <img src="./assets/horizontal/cn.png" style="position: absolute;top:6px;left:6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag && lang==='cn'}}" /> 
-        <img src="./assets/horizontal/en.png" style="position: absolute;top:6px;left:6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag && lang==='en'}}" /> 
-        <img src="./assets/horizontal/123.png" style="position: absolute;left: 171px;top: 6px;width: 94px;height: 60px;" @click="onBtnClick('switchNum')" show="{{downFlag==='' && !numFlag && lang==='en'}}" />
-        <img src="./assets/horizontal/bigA.png" style="position: absolute;top:6px;left:72px;width:94px;height:60px;" @click="onBtnClick('switchLow')" show="{{downFlag==='' && upperFlag && lang==='en'&& !numFlag}}" />
-        <img src="./assets/horizontal/a.png" style="position: absolute;top:6px;left:72px;width:94px;height:60px;" @click="onBtnClick('switchUpper')" show="{{downFlag==='' && !upperFlag && lang==='en'&& !numFlag}}" />
-        <img src="./assets/horizontal/back2.png" style="position: absolute;top:6px;left:6px;width: 159px;height: 60px;" @click="onBtnClick('switchCn')" show="{{numFlag}}" />
-        <img if="{{!numFlag}}" src="./assets/horizontal/del.png" style="position: absolute;left: 270px;top: 6px;width: 60px;height: 60px;" @click="onBtnClick('D')" />
-        <img else src="./assets/horizontal/del2.png" style="position: absolute;left: 171px;top: 6px;width: 159px;height: 60px;" @click="onBtnClick('D')" />
+        
+          <!-- 带变量的相对路径在 aiot-tookit 2.0.3 中编译出错，已反馈，暂时注释掉 -->
+          <!-- <img src="./assets/horizontal/{{lang}}.png" style="position: absolute;top:6px;left:6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag}}" /> -->
+          <img src="./assets/horizontal/en.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='en'}}" />
+          <img src="./assets/horizontal/bigA.png" style="padding: 6px;margin-left: 6px;width:94px;height:60px;" @click="onBtnClick('switchLow')" if="{{downFlag==='' && upperFlag && lang==='en'&& !numFlag}}" />
+          <img src="./assets/horizontal/a.png" style="padding: 6px;margin-left: 6px;width:94px;height:60px;" @click="onBtnClick('switchUpper')" if="{{downFlag==='' && !upperFlag && lang==='en'&& !numFlag}}" />
+          <img src="./assets/horizontal/123.png" style="margin-left: 6px;padding: 6px;margin-left: 6px;width: 94px;height: 60px;" @click="onBtnClick('switchNum')" if="{{downFlag==='' && !numFlag && lang==='en'}}" />
+          <img src="./assets/horizontal/back2.png" style="margin-left: 6px;padding: 6px;width: 159px;height: 60px;" @click="onBtnClick('switchCn')" if="{{numFlag}}" />
+          <img if="{{!numFlag}}" src="./assets/horizontal/del.png" style="margin-left: 6px;padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('D')" />
+          <img else src="./assets/horizontal/del2.png" style="margin-left: 6px;padding: 6px;" @click="onBtnClick('D')" />
+        </div>
         <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
-        <div style="position: absolute;left: 0px;top: 6px;width: 336px;height: 249px;background-color: black;" if="{{downFlag==='down'}}">
+        <div style="position: absolute;left: 0px;top: 0px;width: {{screenWidthRect}}px;height: 252px;background-color: black; justify-content:center; flex-direction:column; align-items:center" if="{{downFlag==='down'}}">
           <div static class="list67">
             <list static style="width:100%;height:100%;">
               <list-item type="waitingRows67" class="item67" for="{{itemArray in resultList2}}">
@@ -193,7 +197,7 @@
               </list-item>
             </list>
           </div>
-          <img static style="position: absolute;top:176px;left:6px;width: 324px;height: 67px;" src="./assets/horizontal/up2.png" @click="onBtnClick('down')" />
+          <img static style="margin-top:5px" src="./assets/horizontal/up2.png" @click="onBtnClick('down')" />
         </div>
       </div>
       <!-- 胶囊屏66 -->
@@ -261,6 +265,7 @@
 
 <script>
 import vibrator from "@system.vibrator";
+import device from '@system.device'
 import { SimpleInputMethod } from "./assets/dicUtil.js";
 function doSearchDic(word, cb) {
   let hanzi = SimpleInputMethod.getHanzi(word);
@@ -308,6 +313,9 @@ export default {
     cvalList: [0, 1, 2, 3, 4],
     percent67: 52,
     percent66: 0,
+    // 针对screenShape为rect的设备，会自动获取screenWidth并绑定到根div
+    // 这样便能同时适配n67和o65甚至是后续设备，但实际效果可能受designWidth影响
+    screenWidthRect: 336,
     keys: {
       full: [
         ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -343,6 +351,9 @@ export default {
         tempCvalList.push(i);
       }
       this.cvalList = tempCvalList;
+    }
+    if (this.screentype === "rect") {
+      this.adjustScreenWidth();
     }
     this.$watch("hide", "watchHidePropsChange");
     this.$watch("maxlength", "watchMaxLengthPropsChange");
@@ -571,6 +582,13 @@ export default {
     this.resetReslutList();
     this.addAllTxt(temp);
   },
+  adjustScreenWidth(){
+    device.getInfo({
+      success: (data) => {
+        this.screenWidthRect = data.screenWidth;
+      }
+    })
+  }
 };
 </script>
 
@@ -679,10 +697,8 @@ export default {
 	height:170px;
 }
 .list67 {
-	position:absolute;
-	left:6px;
 	top:0px;
-	width:324px;
+	width:96.4%;
 	height:170px;
 	border-radius:30px;
 	background-color:#262626;
