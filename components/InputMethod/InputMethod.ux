@@ -1,7 +1,6 @@
 <template>
-  <div class="page" style="flex-direction: column;">
-    <!-- 这里使用show会导致收起键盘时下半区域无法滑动 -->
-    <div style="background-color:black" if="{{!hide}}">
+  <div class="page" style="flex-direction: column;" show="{{!hide}}">
+    <div style="background-color:black" >
       <!-- 圆屏62 -->
       <div if="{{screentype==='circle'}}" style="width: 480px;height: 321px;">
         <!-- 全键盘 -->
@@ -203,7 +202,7 @@
       <!-- 胶囊屏66 -->
       <div if="{{screentype==='pill-shaped'}}" style="width: 192px;height: 305px">
         <div static style="position:absolute;left:0px;top:34px;width:192px;height:276px;">
-          <progress percent="{{30+percent66}}" type="arc" style="start-angle:204deg;total-angle:-48deg;width:188px;height:188px;top:86px;left:2px;position:absolute;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
+          <progress percent="{{30+percent66}}" type="arc" style="start-angle:204deg;total-angle:-48deg;width:188px;height:188px;top:82px;left:2px;position:absolute;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
           <scroll id="keyboard66" scroll-x="{{true}}" onscroll="handelScroll">
             <div if="{{!numFlag}}" style="left: 3px; flex-direction: column;">
               <div static style="margin-left: 0px;margin-top: 0px;height: 60px;">
