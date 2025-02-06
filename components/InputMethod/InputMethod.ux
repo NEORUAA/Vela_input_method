@@ -163,7 +163,7 @@
             </div>
           </scroll>
         </div>
-        <div style="width: {{screenWidthRect}}px; flex-direction: row; justify-content: center">
+        <div style="width: {{screenWidthRect}}px; flex-direction: row; justify-content: center；top:6px">
           <img src="./assets/horizontal/cn.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='cn'}}" />
           <div if="{{lang === 'cn' && !numFlag}}" style="margin-left: 6px;width: 60%;height: 60px;background-color:#262626;border-color: #333333; border-width: 3px; border-radius: 100px;flex-direction: row;align-items:center">
             <scroll id="cvalWaiting" scroll-x="{{true}}" style="position:absolute;width: 85%;height: 42px;">
