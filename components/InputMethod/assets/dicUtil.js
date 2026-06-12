@@ -21,7 +21,7 @@ SimpleInputMethod.initDict = function() {
   this.dict.romaji2kanji = romaji2kanji
 }
 
-SimpleInputMethod.getSingleHanzi = function(pinyin, lang) {
+SimpleInputMethod.getSingleHanzi = function(pinyin, lang = 'cn') {
   // 根据 lang 决定走哪张表
   if (lang === 'cn') {
     return this.dict.py2hz2[pinyin]
