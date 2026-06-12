@@ -8,16 +8,18 @@
         <div id="full-keyboard" if="{{keyboardtype!='T9'}}" style="width: 480px;height: 321px;">
           <img src="./assets/full/back2.png" style="position: absolute;top:38px;left:7px;width:466px;height:52px;" @click="onBtnClick('switchCn')" show="{{numFlag}}" />
           <img src="./assets/full/123.png" style="position: absolute;top:266px;left:119px;width:120px;height:48px;" @click="onBtnClick('switchNum')" show="{{downFlag==='' && !numFlag && lang==='cn'}}" />
+          <img src="./assets/full/123.png" style="position: absolute;top:266px;left:119px;width:120px;height:48px;" @click="onBtnClick('switchNum_jp')" show="{{downFlag==='' && !numFlag && lang==='jp'}}" />
           <img src="./assets/full/bigA.png" style="position: absolute;top:266px;left:119px;width:120px;height:48px;" @click="onBtnClick('switchLow')" show="{{downFlag==='' && upperFlag && lang==='en'}}" />
           <img src="./assets/full/A.png" style="position: absolute;top:266px;left:119px;width:120px;height:48px;" @click="onBtnClick('switchUpper')" show="{{downFlag==='' && !upperFlag && lang==='en'}}" />
           <div style="position: absolute;top:38px;left:78px;width:324px;height:52px;background-color:rgb(38,38,38);border-radius: 12px;border: 3px solid #333333" show="{{downFlag===''&& !numFlag}}"></div>
           <img show="{{resultList.length > 0}}" style="position: absolute;top:43px;left:355px;" src="./assets/full/down.png" @click="onBtnClick('down')" />
           <!-- 带变量的相对路径在 aiot-tookit 2.0.4 中修复 -->
-          <img src="./assets/full/{{lang}}.png" style="position: absolute;top:38px;left:7px;width:67px;height:52px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag}}" />
+          <img src="./assets/full/{{lang}}.png" style="position: absolute;top:38px;left:7px;width:67px;height:52px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang!='jp'}}" />
+          <img src="./assets/full/jp.png" style="position: absolute;top:38px;left:7px;width:67px;height:52px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" />
           <div style="position: absolute;top:-4px;left:78px;width:324px;" show="{{downFlag==='' && !numFlag && cval}}">
             <text class="caltext" style="width:296px;"> {{cval}}_ </text>
           </div>
-          <div style="position: absolute;top:38px;left:80px;width:277px" show="{{lang === 'cn'&& !numFlag}}">
+          <div style="position: absolute;top:38px;left:80px;width:277px" show="{{(lang === 'cn' || lang === 'jp') && !numFlag}}">
             <div class="item column center" for="{{cvalList}}">
               <input show='{{resultList.length > $idx}}' class="calbtn0" type="button" value="{{resultList[$idx]}}" @click="onRsSelect(resultList[$idx])" />
             </div>
@@ -50,23 +52,27 @@
           </div>
           <div style="position: absolute;top:95px;left:8px;width:464px;height:52px;" show="{{numFlag}}">
             <img src="./assets/full/1.png" style="width:54px;height:52px;margin-right: 4px;" @click="onSelect('1')" />
-            <text class="calbtnfull" for="{{item in keys['sign62'][0]}}" @click="onSelect(item)">{{item}}</text>
+            <text if="{{!numFlag_jp}}" class="calbtnfull" for="{{item in keys['sign62'][0]}}" @click="onSelect(item)">{{item}}</text>
+            <text else class="calbtnfull" for="{{item in keys['sign62_jp'][0]}}" @click="onSelect(item)">{{item}}</text>
             <img src="./assets/full/0.png" style="width:54px;height:52px;" @click="onSelect('0')" />
           </div>
           <div style="position: absolute;top:152px;left:23px;width:438px;height:52px;" show="{{numFlag}}">
             <img src="./assets/full/2-1.png" style="width:60px;height:52px;margin-right: 4px;" @click="onSelect('~')" />
-            <text class="calbtnfull" for="{{item in keys['sign62'][1]}}" @click="onSelect(item)">{{item}}</text>
+            <text if="{{!numFlag_jp}}" class="calbtnfull" for="{{item in keys['sign62'][1]}}" @click="onSelect(item)">{{item}}</text>
+            <text else class="calbtnfull" for="{{item in keys['sign62_jp'][1]}}" @click="onSelect(item)">{{item}}</text>
             <img src="./assets/full/2-2.png" style="width:60px;height:52px;" @click="onSelect('?')" />
           </div>
           <div style="position: absolute;top:209px;left:56px;width:368px;height:52px;" show="{{numFlag}}">
             <img src="./assets/full/3-1.png" style="width:72px;height:52px;margin-right: 4px;" @click="onSelect('(')" />
-            <text class="calbtnfull" for="{{item in keys['sign62'][2]}}" @click="onSelect(item)">{{item}}</text>
+            <text if="{{!numFlag_jp}}" class="calbtnfull" for="{{item in keys['sign62'][2]}}" @click="onSelect(item)">{{item}}</text>
+            <text else class="calbtnfull" for="{{item in keys['sign62_jp'][2]}}" @click="onSelect(item)">{{item}}</text>
             <img src="./assets/full/3-2.png" style="width:72px;height:52px;" @click="onSelect('、')" />
           </div>
           <img src="./assets/full/del.png" style="position: absolute;top:38px;left:406px;width:67px;height:52px;" @click="onBtnClick('D')" show="{{downFlag==='' && !numFlag }}" />
           <img src="./assets/full/space.png" style="position: absolute;top:266px;left:242px;width:120px;height:48px;" @click="onBtnClick('space')" show="{{downFlag==='' && !numFlag }}" />
           <img src="./assets/full/4-2.png" style="position: absolute;top:266px;left:242px;width:120px;height:48px;" @click="onSelect('。')" show="{{numFlag }}" />
-          <img src="./assets/full/4-1.png" style="position: absolute;top:266px;left:119px;width:120px;height:48px;" @click="onSelect('，')" show="{{numFlag }}" />
+          <img src="./assets/full/4-1.png" style="position: absolute;top:266px;left:119px;width:120px;height:48px;" @click="onSelect('，')" show="{{numFlag && !numFlag_jp}}" />
+          <img src="./assets/full/4-1.png" style="position: absolute;top:266px;left:119px;width:120px;height:48px;" @click="onSelect('、')" show="{{numFlag_jp}}" />
           <img style="position: absolute;top:204px;left:78px;" src="./assets/full/up.png" @click="onBtnClick('down')" show="{{downFlag==='down'}}" />
         </div>
         <!-- 九键 -->
@@ -78,14 +84,14 @@
           <div style="position: absolute;top:35px;left:95px;width:290px;height:60px;background-color:rgb(38,38,38);border-radius: 999px;border: 3px solid #333333" show="{{downFlag===''&& !numFlag}}"></div>
           <img show="{{resultList.length > 0}}" style="position: absolute;top:44px;left:338px;" src="./assets/full/down.png" @click="onBtnClick('down')" />
           <!-- 带变量的相对路径在 aiot-tookit 2.0.4 中修复 -->
-          <img src="./assets/t9/{{lang}}.png" style="position: absolute;top:35px;left:31px;width: 60px;height: 60px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag}}" />
+          <img src="./assets/t9/{{lang}}.png" style="position: absolute;top:35px;left:31px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag}}" />
           <div style="position: absolute;top:-4px;left:95px;width:145px;height:40px;" show="{{downFlag==='' && !numFlag && cval}}">
             <text class="caltext" style="width:145px;"> {{cval}}_ </text>
           </div>
           <div show="{{downFlag==='' && !numFlag}}" style="position: absolute;top:-4px;left:240px;width:145px;height:40px;justify-content:flex-end">
             <text for="{{waitingList}}" class="waiting-keys" style="color:{{$idx===waitingIndex ? 'rgb(13,132,255)' : 'white'}};" @click="onSelectWaiting($idx)">{{waitingList[$idx]}}</text>
           </div>
-          <div style="position: absolute;top:39px;left:105px;width:233px" show="{{lang === 'cn'&& !numFlag}}">
+          <div style="position: absolute;top:39px;left:105px;width:233px" show="{{lang === 'cn' && !numFlag}}">
             <div class="item column center" for="{{cvalList}}">
               <input show='{{resultList.length > $idx}}' class="calbtn0" type="button" value="{{resultList[$idx]}}" @click="onRsSelect(resultList[$idx])" />
             </div>
@@ -173,7 +179,7 @@
                 <img static src="./assets/horizontal/space.png" style="width: 60px;height: 60px;" @click="onBtnClick('space')" />
               </div>
             </div>
-            <div else style="left: 6px; flex-direction: column;">
+            <div if="{{numFlag && !numFlag_jp}}" style="left: 6px; flex-direction: column;">
               <div static style="margin-left: 0px;margin-top: 0px;height: 60px;">
                 <text class="calbtn67" for="{{item in keys['sign'][0]}}" @click="onSelect(item)">{{item}}</text>
               </div>
@@ -184,11 +190,23 @@
                 <text class="calbtn67" for="{{item in keys['sign'][2]}}" @click="onSelect(item)">{{item}}</text>
               </div>
             </div>
+            <div if="{{numFlag_jp}}" style="left: 6px; flex-direction: column;">
+              <div static style="margin-left: 0px;margin-top: 0px;height: 60px;">
+                <text class="calbtn67" for="{{item in keys['sign_jp'][0]}}" @click="onSelect(item)">{{item}}</text>
+              </div>
+              <div static style="margin-left: 32px;margin-top: -5px;height: 60px;">
+                <text class="calbtn67" for="{{item in keys['sign_jp'][1]}}" @click="onSelect(item)">{{item}}</text>
+              </div>
+              <div static style="margin-left: 64px;margin-top: -5px;height: 60px;">
+                <text class="calbtn67" for="{{item in keys['sign_jp'][2]}}" @click="onSelect(item)">{{item}}</text>
+              </div>
+            </div>
           </scroll>
         </div>
         <div style="width: 100%; flex-direction: row; justify-content: center; top:6px; padding:0 6px;">
           <img src="./assets/horizontal/cn.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='cn'}}" />
-          <div if="{{lang === 'cn' && !numFlag}}" style="margin-left: 6px;flex: 1;height: 60px;background-color:#262626;border-color: #333333; border-width: 3px; border-radius: 100px;flex-direction: row;align-items:center">
+          <img src="./assets/horizontal/jp.png" style="padding:6px;width:60px;height:60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" />
+          <div if="{{(lang === 'cn' || lang === 'jp') && !numFlag}}" style="margin-left: 6px;flex: 1;height: 60px;background-color:#262626;border-color: #333333; border-width: 3px; border-radius: 100px;flex-direction: row;align-items:center">
             <scroll id="cvalWaiting" scroll-x="{{true}}" style="position:absolute;width: 85%;height: 42px;">
               <div static style="position: absolute;left: 0px;height: 42px;padding-left:20px;padding-right:20px">
                 <text class="calbtn02" style="padding-right:10px" @click="pushCval">{{cval}}</text>
@@ -197,6 +215,7 @@
             </scroll>
             <img if="{{resultList.length > 0}}" style="position:absolute;right: 8px; width: 60px;height: 40px;" src="./assets/horizontal/down2.png" @click="onBtnClick('down')" />
           </div>
+          <img src="./assets/horizontal/123.png" style="margin-left:6px;padding:6px;width:60px;height:60px;" @click="onBtnClick('switchNum_jp')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" />
         
           <img src="./assets/horizontal/en.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='en'}}" />
           <img src="./assets/horizontal/bigA.png" style="padding: 6px;margin-left: 6px;width:94px;height:60px;" @click="onBtnClick('switchLow')" if="{{downFlag==='' && upperFlag && lang==='en'&& !numFlag}}" />
@@ -302,26 +321,13 @@ import vibrator from "@system.vibrator";
 import device from '@system.device'
 import { SimpleInputMethod } from "./assets/dicUtil.js";
 function doSearchDic(word, lang, cb) {
-  let list = [];
-
   if (!word) {
     cb([]);
     return;
   }
 
-  if (lang === 'cn') {
-    // 中文模式：走原有的拼音查汉字
-    const res = SimpleInputMethod.getHanzi(word);
-    list = Array.isArray(res) && res[0] ? res[0] : [];
-  }
-  else if (lang === 'jp') {
-    // 日文模式：只查罗马拼音→假名+汉字
-    const raw = SimpleInputMethod.dict.romaji2kanji[word] || '';
-    list = raw ? raw.split('') : [];
-  }
-  // else if (lang === 'en') { /* 英文模式：暂不候选 */ }
-
-  cb(list);
+  const result = SimpleInputMethod.getHanzi(word, lang);
+  cb(Array.isArray(result) && result[0] ? result[0] : []);
 }
 
 function deleteLast(t) {
@@ -358,7 +364,7 @@ export default {
     downFlag: "",
     lang: "cn",
     numFlag: false,
-    numFlag_jp:false,
+    numFlag_jp: false,
     upperFlag: false,
     cvalList: [0, 1, 2, 3, 4],
     percent67: 52,
@@ -382,6 +388,26 @@ export default {
         ["~", "•", "@", "#", "%", "「", "」", "*", "?", "/"],
         ["(", ")", "-", "…", ":", ";", "、", "。", "!"],
       ],
+      sign62: [
+        ["2", "3", "4", "5", "6", "7", "8", "9"],
+        ["!", "@", "#", "%", "“", "”", "*"],
+        [")", "-", "_", ":", ";"],
+      ],
+      sign62_jp: [
+        ["2", "3", "4", "5", "6", "7", "8", "9"],
+        ["•", "@", "#", "%", "「", "」", "*"],
+        [")", "-", "…", ":", ";"],
+      ],
+      full62: [
+        ["W", "E", "R", "T", "Y", "U", "I", "O"],
+        ["S", "D", "F", "G", "H", "J", "K"],
+        ["X", "C", "V", "B", "N"],
+      ],
+      t9: [
+        ["abc", "def"],
+        ["ghi", "jkl", "mno"],
+        ["pqrs", "tuv", "wxyz"],
+      ],
     },
   },
   onInit() {
@@ -397,7 +423,7 @@ export default {
     }
     this.$watch("hide", "watchHidePropsChange");
     this.$watch("maxlength", "watchMaxLengthPropsChange");
-    console.log(this.lang)
+    this.$watch("keyboardtype", "watchKeyboardTypePropsChange");
   },
   addAllTxt(txt) {
     this.$emit("complete", { content: txt });
@@ -419,12 +445,16 @@ export default {
         this.resetReslutList();
         break;
       case "lang":
-        if (this.lang === "cn") {
-          this.lang = "en";
-        } else if (this.lang === "en") {
-          this.lang = "jp";
+        if (this.keyboardtype === "T9") {
+          this.lang = this.lang === "cn" ? "en" : "cn";
         } else {
-          this.lang = "cn";
+          if (this.lang === "cn") {
+            this.lang = "en";
+          } else if (this.lang === "en") {
+            this.lang = "jp";
+          } else {
+            this.lang = "cn";
+          }
         }
         this.cval = "";
         this.clearWaiting();
@@ -463,14 +493,13 @@ export default {
         }
         break;
       case "switchNum":
-        console.log("cncn");
         this.numFlag = true;
+        this.numFlag_jp = false;
         this.cval = "";
         this.clearWaiting();
         this.resetReslutList();
         break;
       case "switchNum_jp":
-        console.log("jpjp");
         this.numFlag = true;
         this.numFlag_jp = true;
         this.cval = "";
@@ -479,7 +508,7 @@ export default {
         break;
       case "switchCn":
         this.numFlag = false;
-        this.numFlag_jp = false
+        this.numFlag_jp = false;
         break;
       case "switchUpper":
         this.upperFlag = true;
@@ -524,7 +553,6 @@ export default {
         }
         break;
     }
-    console.log(this.lang)
   },
   clearWaiting() {
     this.waitingList = [];
@@ -536,14 +564,12 @@ export default {
     if (this.lastWaitingStr && this.lastWaitingStr[this.waitingIndex]) {
       watingStr = this.lastWaitingStr[this.waitingIndex];
     }
-    if (!(this.cval + watingStr) || this.lang != "cn" && this.lang !== "jp") {
+    if (!(this.cval + watingStr) || (this.lang !== "cn" && this.lang !== "jp")) {
       this.resultList = [];
       this.setResultListAll();
       return;
     }
-    if (this.lang === 'cn' || this.lang === 'jp') {
-    this.getResultByWord(this.cval + watingStr); // 复用同一函数即可
-    }
+    this.getResultByWord(this.cval + watingStr);
   },
   setResultListAll() {
     this.resultList2 = [];
@@ -568,6 +594,10 @@ export default {
   },
   onSelect(num) {
     this.$emit("keyDown", { content: num });
+    if (this.keyboardtype === "T9" && this.screentype !== "pill-shaped") {
+      this.onBtnClick(num);
+      return;
+    }
     this.onVibrate();
     if ((this.lang === 'cn' || this.lang === 'jp')  && !this.numFlag) {
       this.cval += num.toLowerCase();
@@ -606,6 +636,14 @@ export default {
         tempCvalList.push(i);
       }
       this.cvalList = tempCvalList;
+    }
+  },
+  watchKeyboardTypePropsChange(newV, oldV) {
+    if (newV === "T9" && this.lang === "jp") {
+      this.lang = "cn";
+      this.cval = "";
+      this.clearWaiting();
+      this.resetReslutList();
     }
   },
   onVibrate() {
@@ -783,5 +821,29 @@ export default {
 	width:36px;
 	height:40px;
 	text-align: center;
+}
+
+.keyboard-rows-rect-t9 {
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+  flex-shrink: 0;
+  height: 55px;
+  width: 100%;
+}
+
+.calbtnt9-rect {
+  flex:1;
+  height:55px;
+  margin:0 3px;
+  width:unset;
+}
+
+@media (min-width: 230) and (max-width: 235) and (shape: circle) {
+  #full-keyboard {
+    transform:scale(0.96);
+    transform-origin:0 321px;
+    overflow:visible;
+  }
 }
 </style>
