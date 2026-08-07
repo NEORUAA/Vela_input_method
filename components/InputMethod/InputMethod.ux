@@ -454,15 +454,14 @@ export default {
     if (this.screentype === "rect" || this.screentype === "pill-shaped") {
       this.adjustScreenWidth();
     }
-    // 字典懒初始化：进入页面时键盘隐藏(hide=true)，无需建 3000 词索引。
-    // 旧实现 onInit 里 setTimeout(0) 同步 initDict，会在进入 search/chat 后立刻占住主线程
-    // （建词对象 + 3000 词 forwardIndex 遍历），正是「进入界面卡顿」的可感来源之一。
-    // 改到首次键盘弹出(hide→false)时才 initDict，进入页面零字典开销；initDict 幂等且
-    // forwardIndex 分片构建（见 dicUtil.js），键盘首帧也不被阻塞。
+    // 字典懒初始化：进入页面时不阻塞主线程（建词对象 + 3000 词 forwardIndex 遍历），
+    // 延迟到首帧后初始化，避免「进入界面卡顿」。
+    // 不依赖 hide watch（部分机型 watch 链不可靠导致 dict 永不初始化 → 候选恒空），
+    // 改为在 onInit 统一延迟执行；initDict 幂等且 forwardIndex 分片构建（见 dicUtil.js）。
+    this._ensureDictInitSoon();
     if (!this.hide) {
-      // 挂载即展开的用法：键盘子树直接创建并保活
+      // 挂载即展开的用法：键盘显式直接创建并保活
       this.keyboardCreated = true
-      this._ensureDictInit();
     }
     this.$watch("hide", "watchHidePropsChange");
     this.$watch("maxlength", "watchMaxLengthPropsChange");
@@ -758,10 +757,20 @@ export default {
     }
   },
   // 字典懒初始化入口（幂等，只跑一次）。initDict 内部还有 syllableSet 幂等守卫。
+  // started 标志在 initDict 成功返回后才置位：若初始化抛异常（如某机型 JS 引擎不支持
+  // 部分语法），下次可重试，否则标志提前置位会导致字典永不重建、候选恒空。
   _ensureDictInit() {
     if (this.__dictInitStarted) return
-    this.__dictInitStarted = true
     SimpleInputMethod.initDict()
+    this.__dictInitStarted = true
+  },
+  // 首帧后启动字典初始化：不阻塞进入页面，也不依赖 hide watch 链（部分机型 watch 不可靠）。
+  // 引擎若在 setTimeout 回调前已初始化，本定时器也幂等跳过。
+  _ensureDictInitSoon() {
+    if (this.__dictInitStarted) { return }
+    setTimeout(() => {
+      this._ensureDictInit();
+    }, 0)
   },
   watchMaxLengthPropsChange(newV, oldV) {
     if (newV) {
