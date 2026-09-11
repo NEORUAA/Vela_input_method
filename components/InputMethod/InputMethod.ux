@@ -43,13 +43,11 @@
             <img src="./assets/full/123_boardless.png" />
           </div>
           <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
-          <list class="list3" if="{{downFlag==='down'}}">
-            <list-item type="waitingRows62t9" class="item3" for="{{itemArray in resultList2}}">
-              <div class="item column center" style="height:52px;" for="{{item in itemArray}}">
-                <text class="calbtn-down-text" @click="onRsSelect(item)">{{item}}</text>
-              </div>
-            </list-item>
-          </list>
+          <scroll class="list3 expanded-scroll" scroll-y="{{true}}" if="{{downFlag==='down'}}">
+            <div class="expanded-candidates">
+              <text class="calbtn-down-text" for="{{item in resultList2}}" @click="onRsSelect(item)">{{item}}</text>
+            </div>
+          </scroll>
           <div style="position: absolute;top:95px;left:8px;width:464px;height:52px;" show="{{downFlag===''&&!numFlag}}">
             <img src="./assets/full/Q.png" style="width:54px;height:52px;margin-right: 4px;" @click="onSelect('Q')" />
             <text class="calbtnfull" for="{{item in keys['full62'][0]}}" @click="onSelect(item)">{{item}}</text>
@@ -120,13 +118,11 @@
             <img src="./assets/full/123_boardless.png" />
           </div>
           <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
-          <list class="list3" if="{{downFlag==='down'}}">
-            <list-item type="waitingRows62full" class="item3" for="{{itemArray in resultList2}}">
-              <div class="item column center" style="height:52px;" for="{{item in itemArray}}">
-                <text class="calbtn-down-text" @click="onRsSelect(item)">{{item}}</text>
-              </div>
-            </list-item>
-          </list>
+          <scroll class="list3 expanded-scroll" scroll-y="{{true}}" if="{{downFlag==='down'}}">
+            <div class="expanded-candidates">
+              <text class="calbtn-down-text" for="{{item in resultList2}}" @click="onRsSelect(item)">{{item}}</text>
+            </div>
+          </scroll>
           <div style="position: absolute;top:99px;left:95px;width:294px;height:60px;" show="{{downFlag===''&&!numFlag}}">
             <text class="calbtnt9" @click="onSelect('select')">选择</text>
             <text class="calbtnt9" for="{{item in keys['t9'][0]}}" @click="onSelect(item)">{{item.toUpperCase()}}</text>
@@ -233,9 +229,9 @@
                 <text for="{{resultRow0}}" show="{{resultRow0.length > $idx}}" class="calbtn02" style="padding-right:10px" @click="onRsSelect(resultRow0[$idx])">{{resultRow0[$idx]}}</text>
               </div>
             </scroll>
-            <img if="{{resultRow0.length > 0}}" style="position:absolute;right: 8px; width: 60px;height: 40px;" src="./assets/horizontal/down2.png" @click="onBtnClick('down')" />
+            <img if="{{resultRow0.length > 0}}" style="position:absolute;right: 5px; width: 60px;height: 40px;" src="./assets/horizontal/down2.png" @click="onBtnClick('down')" />
           </div>
-          <img src="./assets/horizontal/123.png" style="margin-left:6px;padding:6px;width:60px;height:60px;" @click="onBtnClick('switchNum_jp')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" />
+          <!-- <img src="./assets/t9/123.png" style="margin-left:6px;padding:6px;width:60px;height:60px;" @click="onBtnClick('switchNum_jp')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" /> -->
         
           <img src="./assets/horizontal/en.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='en'}}" />
           <img src="./assets/horizontal/bigA.png" style="padding: 6px;margin-left: 6px;width:94px;height:60px;" @click="onBtnClick('switchLow')" if="{{downFlag==='' && upperFlag && lang==='en'&& !numFlag}}" />
@@ -248,13 +244,11 @@
         <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
         <div style="position: absolute;left: 0px;top: 0px;width: 100%;height: 252px;background-color: black; justify-content:center; flex-direction:column; align-items:center" if="{{downFlag==='down'}}">
           <div static class="list67">
-            <list static style="width:100%;height:100%;">
-              <list-item type="waitingRows67" class="item67" for="{{itemArray in resultList2}}">
-                <div class="item column center" for="{{item in itemArray}}">
-                  <text class="calbtn-down-text" @click="onRsSelect(item)">{{item}}</text>
-                </div>
-              </list-item>
-            </list>
+            <scroll class="expanded-scroll" scroll-y="{{true}}" style="width:100%;height:100%;">
+              <div class="expanded-candidates">
+                <text class="calbtn-down-text" for="{{item in resultList2}}" @click="onRsSelect(item)">{{item}}</text>
+              </div>
+            </scroll>
           </div>
           <img static style="margin-top:5px" src="./assets/horizontal/up2.png" @click="onBtnClick('down')" />
         </div>
@@ -321,13 +315,11 @@
         <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
         <div style="position: absolute;top: 47px;width: 100%;height: 263px;background-color: black;" if="{{downFlag==='down'}}">
           <div style="position: absolute;left: {{(screenWidth - 192)/2}}px;width: 192px;height: 263px;"> 
-            <list static class="list66">
-              <list-item type="waitingRows66" class="item66" for="{{itemArray in resultList2}}">
-                <div class="item column center" for="{{item in itemArray}}">
-                  <text class="calbtn-down-text" @click="onRsSelect(item)">{{item}}</text>
-                </div>
-              </list-item>
-            </list>
+            <scroll scroll-y="{{true}}" class="list66 expanded-scroll">
+              <div class="expanded-candidates expanded-candidates66">
+                <text class="calbtn-down-text" for="{{item in resultList2}}" @click="onRsSelect(item)">{{item}}</text>
+              </div>
+            </scroll>
             <img static style="position: absolute;top:196px;left:56px;width: 80px;height: 60px;" src="./assets/arc/up2.png" @click="onBtnClick('down')" />
           </div>
         </div>
@@ -659,27 +651,13 @@ export default {
     this.resultRow0 = row0;
     this.resultRow0IsWord = row0IsWord;
 
-    // 下展分页（down 展开）：整词优先，再单字，每页 maxlength 个
-    this.resultList2 = [];
-    let array = [];
-    for (let i = 0; i < this.resultWordList.length; i++) {
-      array.push(this.resultWordList[i]);
-      if (array.length === cap) {
-        this.resultList2.push(array);
-        array = [];
-      }
-    }
+    // Expanded candidates flow by content width, independently of maxlength.
+    const expanded = this.resultWordList.slice();
     for (let i = 0; i < this.resultList.length; i++) {
       if (this.resultWordList.indexOf(this.resultList[i]) !== -1) continue;
-      array.push(this.resultList[i]);
-      if (array.length === cap) {
-        this.resultList2.push(array);
-        array = [];
-      }
+      expanded.push(this.resultList[i]);
     }
-    if (array.length > 0) {
-      this.resultList2.push(array);
-    }
+    this.resultList2 = expanded;
   },
   getResultByWord(val) {
     const that = this;
@@ -841,14 +819,34 @@ export default {
 	padding-right:14px;
 	text-align:center;
 }
-/* 下展分页候选文字：text 默认按内容自适应宽度，不会被固定宽度截断 */
+.expanded-scroll {
+	flex-direction:column;
+	align-items:flex-start;
+}
+/* Keep wrapped content independent of the fixed scroll viewport height. */
+.expanded-candidates {
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:100%;
+	flex-direction:row;
+	flex-wrap:wrap;
+	justify-content:center;
+	align-items:center;
+	align-content:flex-start;
+	flex-shrink:0;
+}
+.expanded-candidates66 {
+	padding:10px;
+}
 .calbtn-down-text {
 	color:#ffffff;
 	font-size:28px;
-	margin-left:10px;
-	margin-right:10px;
-	lines:1;
-	text-overflow:ellipsis;
+	padding:8px 10px;
+	min-height:52px;
+	max-width:100%;
+	flex-shrink:0;
+	text-align:center;
 }
 .calbtnfull {
 	color:#fff;
@@ -912,10 +910,6 @@ export default {
 	background-color:#262626;
 	border-radius:12px
 }
-.item3 {
-	width:324px;
-	height:52px
-}
 .calbtn67 {
 	color:rgb(255,255,255);
 	font-size:32px;
@@ -951,9 +945,6 @@ export default {
 	border:3px solid rgba(255,255,255,0.06);
 	padding:0px 10px;
 }
-.item67 {
-	height:50px;
-}
 .calbtn66 {
 	color:rgb(255,255,255);
 	font-size:32px;
@@ -975,10 +966,6 @@ export default {
 	border-radius:30px;
 	background-color:#262626;
 	border:3px solid rgba(255,255,255,0.06);
-	padding:10px
-}
-.item66 {
-	height:42px;
 }
 .waiting-keys {
 	width:36px;
