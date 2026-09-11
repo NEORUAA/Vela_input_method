@@ -1,12 +1,11 @@
 import file from '@system.file'
 import { createInputMethod } from './dicUtil.js'
 
-// Package resource path for the component's location in the host project.
-const ROOT = '/Vela_input_method/components/InputMethod/assets/dictionary/'
+const DEFAULT_ROOT = '/components/InputMethod/assets/dictionary/'
 
 // One reader per component: at most one file in flight and one latest request.
 // Keep this object outside reactive data to avoid observing dictionary entries.
-function createDictionaryLoader(readText = options => file.readText(options)) {
+function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.readText(options)) {
   let engine = createInputMethod()
   let pending = null
   let reading = false
@@ -78,7 +77,7 @@ function createDictionaryLoader(readText = options => file.readText(options)) {
     }
     try {
       readText({
-        uri: ROOT + resource + '.json',
+        uri: root + resource + '.json',
         success: data => finish(data, null),
         fail: () => finish(null, true)
       })

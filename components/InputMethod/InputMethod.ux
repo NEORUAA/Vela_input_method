@@ -350,6 +350,9 @@ function deleteLast(t) {
 }
 export default {
   props: {
+    dictionarypath: {
+      default: "/components/InputMethod/assets/dictionary/",
+    },
     hide: {
       default: true,
     },
@@ -438,7 +441,7 @@ export default {
     // Initialize the loader independently of hide watchers (unreliable on some devices).
     // Dictionary data is loaded on input; failed reads can retry on the next query.
     Object.defineProperty(this, "_dictionary", {
-      value: createDictionaryLoader(), configurable: true
+      value: createDictionaryLoader(this.dictionarypath), configurable: true
     });
     if (this.maxlength) {
       const tempCvalList = [];

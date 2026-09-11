@@ -14,6 +14,8 @@ git clone https://github.com/NEORUAA/Vela_input_method.git
 ### 拷贝代码
 把项目中的 `components` 文件夹拷贝到要使用组件的项目 src 目录下。然后就可以按照自定义组件的使用方式来使用本组件了。
 
+由于 file.readText 方法暂不支持相对路径，默认词库路径为 `/components/InputMethod/assets/dictionary/`。如果组件放在其他目录，通过 `dictionarypath` 传入对应的包内绝对路径，以 `/` 结尾；
+
 在宿主 `manifest.json` 的 `features` 中声明文件接口（已有声明无需重复添加）：
 
 ```json
@@ -44,6 +46,7 @@ input-method
 ## 属性
 | 名称 | 类型 | 默认值 | 必填 | 描述 |
 | --------  | :----:  | :----:  | :----:  | :---- |
+| dictionarypath | string | "/components/InputMethod/assets/dictionary/" | 否 | 词库目录的包内绝对路径，以 `/` 结尾；组件初始化时读取 |
 | hide | boolean | true | 是 | 是否显⽰键盘（开发者可以通过切换属性值隐藏或者唤醒键盘） |
 | keyboardtype | string | "QWERTY" | 否 | 键盘布局，"QWERTY" 表⽰全键，"T9" 表⽰九键。默认为 "QWERTY"（当 screentype 为 "pill-shaped" 时仅全键盘可用；日语暂不支持 T9） |
 | maxlength | number | 5 | 否 | 默认展⽰的拼⾳候选词数量， maxlength > 0 时有效；点击展开查看所有候选词 |

@@ -8,13 +8,13 @@ const createInputMethod = vm.runInNewContext(strip(fs.readFileSync('components/I
 const createLoader = vm.runInNewContext(strip(fs.readFileSync('components/InputMethod/assets/dictionaryLoader.js', 'utf8')) + '\ncreateDictionaryLoader', { createInputMethod, console: { warn() {} } });
 const queue = [], reads = [], results = [];
 const reader = options => { queue.push(options); reads.push(options.uri); assert.equal(queue.length, 1); };
-const loader = createLoader(reader);
+const loader = createLoader(undefined, reader);
 const search = (word, lang = 'cn') => loader.search(word, lang, (data, display) => results.push({ word, lang, data, display }));
 function finish(fail = false) {
   const request = queue.shift();
   assert.ok(request);
   if (fail) request.fail();
-  else request.success({ text: fs.readFileSync(request.uri.replace('/Vela_input_method/', ''), 'utf8') });
+  else request.success({ text: fs.readFileSync('.' + request.uri, 'utf8') });
 }
 function flush() { let limit = 30; while (queue.length && limit--) finish(); assert.ok(limit > 0); }
 
@@ -69,11 +69,12 @@ assert.equal(queue.length, 0);
 // Exercise the actual component handlers, including T9 waiting input and hiding.
 const ux = fs.readFileSync('components/InputMethod/InputMethod.ux', 'utf8').split('<script>')[1].split('</script>')[0];
 const definition = vm.runInNewContext(ux.replace(/^import .+$/gm, '').replace('export default', 'const component =') + '\ncomponent', {
-  createDictionaryLoader: () => createLoader(reader),
+  createDictionaryLoader: root => createLoader(root, reader),
   vibrator: { vibrate() {} }, device: { getInfo() {} }
 });
 const component = Object.assign({}, definition, JSON.parse(JSON.stringify(definition.data)), {
   hide: true, maxlength: 5, screentype: 'circle', keyboardtype: 'QWERTY', vibratemode: '',
+  dictionarypath: definition.props.dictionarypath.default,
   $watch() {}, $emit() {}
 });
 component.onInit();
