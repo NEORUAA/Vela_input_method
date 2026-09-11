@@ -435,6 +435,8 @@ export default {
     },
   },
   onInit() {
+    // Initialize the loader independently of hide watchers (unreliable on some devices).
+    // Dictionary data is loaded on input; failed reads can retry on the next query.
     Object.defineProperty(this, "_dictionary", {
       value: createDictionaryLoader(), configurable: true
     });
