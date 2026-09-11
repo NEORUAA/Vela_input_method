@@ -12,7 +12,23 @@ git clone https://github.com/NEORUAA/Vela_input_method.git
 ```
 
 ### 拷贝代码
-把项目中的 components 文件夹拷贝到要使用组件的项目 src 目录下。然后就可以按照自定义组件的使用方式来使用本组件了。
+把项目中的 `components` 文件夹拷贝到要使用组件的项目 src 目录下。然后就可以按照自定义组件的使用方式来使用本组件了。
+
+在宿主 `manifest.json` 的 `features` 中声明文件接口（已有声明无需重复添加）：
+
+```json
+{ "name": "system.file" }
+```
+
+### 词库维护
+
+原始词库位于 `tools/dictionaries/`，修改后运行以下命令重新生成包内资源并验证（这些工具和测试不用拷贝进宿主应用）：
+
+```bash
+node tools/build-dictionaries.cjs
+node tests/dictionary-parity.cjs
+node tests/dictionary-loader.cjs
+```
 
 ---
 

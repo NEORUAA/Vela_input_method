@@ -33,8 +33,8 @@
           </div>
           <!-- 候选横滚行：整词在前、单字随后，宽度自适应防长词拥挤（对齐 rect/pill 屏方案），容器止于右侧 down 箭头前 -->
           <div style="position: absolute;top:38px;left:78px;width:275px;height:52px;" show="{{(lang === 'cn' || lang === 'jp') && !numFlag}}">
-            <scroll scroll-x="{{true}}" style="position:absolute;left:0px;width:100%;height:42px;">
-              <div style="position: absolute;left: 0px;height: 42px;padding-left:20px;padding-right:20px">
+            <scroll scroll-x="{{true}}" style="position:absolute;left:0px;width:100%;height:42px;top:5px">
+              <div style="position: absolute;left: 0px;height: 42px;padding-left:20px;padding-right:20px;">
                 <text for="{{resultRow0}}" show="{{resultRow0.length > $idx}}" class="calbtn02" style="padding-right:10px" @click="onRsSelect(resultRow0[$idx])">{{resultRow0[$idx]}}</text>
               </div>
             </scroll>
@@ -340,16 +340,7 @@
 <script>
 import vibrator from "@system.vibrator";
 import device from '@system.device'
-import { SimpleInputMethod } from "./assets/dicUtil.js";
-function doSearchDic(word, lang, cb) {
-  if (!word) {
-    cb({ chars: [], multi: null });
-    return;
-  }
-
-  const res = SimpleInputMethod.getHanzi(word, lang);
-  cb({ chars: res.chars, matched: res.matched, multi: res.multi });
-}
+import { createDictionaryLoader } from "./assets/dictionaryLoader.js";
 
 function deleteLast(t) {
   if (t) {
@@ -444,6 +435,9 @@ export default {
     },
   },
   onInit() {
+    Object.defineProperty(this, "_dictionary", {
+      value: createDictionaryLoader(), configurable: true
+    });
     if (this.maxlength) {
       const tempCvalList = [];
       for (let i = 0; i < this.maxlength; i++) {
@@ -454,19 +448,13 @@ export default {
     if (this.screentype === "rect" || this.screentype === "pill-shaped") {
       this.adjustScreenWidth();
     }
-    // 字典懒初始化：进入页面时键盘隐藏(hide=true)，无需建 3000 词索引。
-    // 旧实现 onInit 里 setTimeout(0) 同步 initDict，会在进入 search/chat 后立刻占住主线程
-    // （建词对象 + 3000 词 forwardIndex 遍历），正是「进入界面卡顿」的可感来源之一。
-    // 改到首次键盘弹出(hide→false)时才 initDict，进入页面零字典开销；initDict 幂等且
-    // forwardIndex 分片构建（见 dicUtil.js），键盘首帧也不被阻塞。
-    if (!this.hide) {
-      // 挂载即展开的用法：键盘子树直接创建并保活
-      this.keyboardCreated = true
-      this._ensureDictInit();
-    }
+    if (!this.hide) this.keyboardCreated = true;
     this.$watch("hide", "watchHidePropsChange");
     this.$watch("maxlength", "watchMaxLengthPropsChange");
     this.$watch("keyboardtype", "watchKeyboardTypePropsChange");
+  },
+  onDestroy() {
+    this._dictionary.destroy();
   },
   addAllTxt(txt) {
     this.$emit("complete", { content: txt });
@@ -633,17 +621,20 @@ export default {
     if (this.lastWaitingStr && this.lastWaitingStr[this.waitingIndex]) {
       watingStr = this.lastWaitingStr[this.waitingIndex];
     }
-    // 拼音分词显示：cn 模式显示 ni'hao 形式，jp/en/空串保持原样
-    this.cvalDisplay = (this.lang === "cn")
-      ? SimpleInputMethod.getSegmentedDisplay(this.cval + watingStr)
-      : (this.cval + watingStr);
+    this.cvalDisplay = this.cval + watingStr;
     if (!(this.cval + watingStr) || (this.lang !== "cn" && this.lang !== "jp")) {
-      this.resultList = [];
-      this.resultWordList = [];
-      this.setResultListAll();
+      this._dictionary.release();
+      this.clearCandidates();
       return;
     }
     this.getResultByWord(this.cval + watingStr);
+  },
+  clearCandidates() {
+    this.resultList = [];
+    this.resultWordList = [];
+    this.matchedLen = 0;
+    this.sylTopChars = [];
+    this.setResultListAll();
   },
   setResultListAll() {
     // 首页展示序列：整词在前，单字随后，截断到 maxlength
@@ -687,7 +678,10 @@ export default {
   },
   getResultByWord(val) {
     const that = this;
-    doSearchDic(val, that.lang, function (data) {
+    let completed = false;
+    this._dictionary.search(val, that.lang, function (data, display) {
+      completed = true;
+      that.cvalDisplay = display;
       that.resultList = data.chars;                       // 单字候选（沿用）
       that.matchedLen = data.matched ? data.matched.length : 0;
       const multi = data.multi || { words: [], composed: "", sylTopChars: [] };
@@ -713,6 +707,8 @@ export default {
       that.resultWordList = words;
       that.setResultListAll();
     });
+    // Keep warm queries synchronous; clear stale candidates only during I/O.
+    if (!completed) this.clearCandidates();
   },
   onSelect(num) {
     this.$emit("keyDown", { content: num });
@@ -750,18 +746,13 @@ export default {
   },
   watchHidePropsChange(newV, oldV) {
     this.$emit("visibilityChange", { visible: newV });
-    // 键盘从隐藏切到显示(hide:true→false)：首次弹出才把键盘子树建入 DOM（keyboardCreated 置 true 保活，
-    // 之后 hide 切换只走 show 显隐、不再重建）。同时懒初始化字典（幂等）。
     if (newV === false) {
       this.keyboardCreated = true;
-      this._ensureDictInit();
+      this.resetResultList();
+    } else {
+      this._dictionary.release();
+      this.clearCandidates();
     }
-  },
-  // 字典懒初始化入口（幂等，只跑一次）。initDict 内部还有 syllableSet 幂等守卫。
-  _ensureDictInit() {
-    if (this.__dictInitStarted) return
-    this.__dictInitStarted = true
-    SimpleInputMethod.initDict()
   },
   watchMaxLengthPropsChange(newV, oldV) {
     if (newV) {

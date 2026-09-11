@@ -1,9 +1,3 @@
-import { getDict } from './dic.js'
-import { getDictJp } from './dic_jp.js'
-import { getWords } from './dic_words.js'
-import { getInitialsIndex } from './dic_words_initials.js'
-import { syllables } from './pinyin_syllables.js'
-
 // 辅助：从词库取值（支持单值和数组），去重推入 wordHits
 function pushWordHits(val, arr) {
   if (!val) return
@@ -20,67 +14,79 @@ let SimpleInputMethod = {
   dict: {}
 }
 
-SimpleInputMethod.initDict = function() {
-  // 幂等：已初始化则跳过（组件可能多次挂载）
-  if (this.dict.syllableSet) return
-  // 惰性取字典对象（模块只导出工厂函数，页面加载时不建对象；首次 initDict 时才创建，
-  // 把建 3000 词/大表对象的成本从页面入口挪到键盘弹出后的后台——search/chat 秒开的关键之一）
-  this.dict.py2hz = getDict()
-  this.dict.py2hz2 = {}
-  this.dict.py2hz2['i'] = 'i' // 特殊处理
-  this.dict.romaji2kanji = getDictJp()
-
-  // 合法音节集合 + 首字母索引：一次遍历 dic.js
-  this.dict.syllableSet = new Set(syllables)
-  for (let key in this.dict.py2hz) {
-    const ch = key[0]
-    if (!this.dict.py2hz2[ch]) this.dict.py2hz2[ch] = this.dict.py2hz[key]
-    this.dict.syllableSet.add(key)
-  }
-
-  // 整词词库（惰性创建）
-  this.dict.words = getWords()
-
-  // 简拼索引：预计算倒排索引直接赋值（生成脚本产出，init 不再逐词切分）
-  this.dict.initialsIndex = getInitialsIndex()
-  // forwardIndex 分片构建：每片 200 词，剩余排 setTimeout(0) 继续。
-  // 一次性遍历 3000 词是长任务，会占住主线程可感卡顿；分片后首片立即返回，后续零碎完成。
-  this._buildForwardIndex()
+// Each component owns its dictionary state; large data stays outside the JS bundle.
+function createInputMethod() {
+  const engine = Object.create(SimpleInputMethod)
+  engine.dict = { shards: {} }
+  return engine
 }
 
-// 前向索引(首2字母 → 词键列表)分片构建。构建完成前 getMultiHanzi 的 forward 匹配短暂空转，
-// 前缀/简拼/分词逐字兜底路径不受影响（getHanzi 返回空也由调用方降级），用户无感。
-SimpleInputMethod._buildForwardIndex = function() {
-  const wmap = this.dict.words || {}
-  const fwd = this.dict.forwardIndex || (this.dict.forwardIndex = {})
-  const keys = Object.keys(wmap)
-  const CHUNK = 200
-  let i = 0
-  const step = () => {
-    const end = Math.min(i + CHUNK, keys.length)
-    for (; i < end; i++) {
-      const key = keys[i]
-      if (key.length >= 2) {
-        const pref = key.charAt(0) + key.charAt(1)
-        const fi = fwd[pref]
-        if (fi) fi.push(key)
-        else fwd[pref] = [key]
-      }
-    }
-    if (i < keys.length) setTimeout(step, 0)
+SimpleInputMethod.initDict = function(data) {
+  this.dict.py2hz = data.chars
+  this.dict.py2hz2 = { i: 'i' }
+  this.dict.syllableSet = new Set(data.syllables)
+  for (const key in data.chars) {
+    const first = key[0]
+    if (!this.dict.py2hz2[first]) this.dict.py2hz2[first] = data.chars[key]
+    this.dict.syllableSet.add(key)
   }
-  step()
+}
+
+function getWord(dict, key) {
+  const shard = dict.shards[key[0]]
+  return shard && shard.words[key]
+}
+
+SimpleInputMethod.installShard = function(letter, shard) {
+  const keys = Object.keys(shard.words)
+  // Reuse word-key strings instead of parsing a duplicate string per index entry.
+  for (const index of [shard.initials, shard.forward]) {
+    for (const key in index) {
+      const references = index[key]
+      for (let i = 0; i < references.length; i++) references[i] = keys[references[i]]
+    }
+  }
+  this.dict.shards[letter] = shard
+}
+
+// Composition only looks up words beginning with these syllables.
+SimpleInputMethod.requiredShards = function(pinyin) {
+  const letters = []
+  const add = key => {
+    const first = key && key[0]
+    if (first && /^[a-z]$/.test(first) && letters.indexOf(first) === -1) letters.push(first)
+  }
+  add(pinyin)
+  // Mixed input can continue past an incomplete syllable; include its tokens too.
+  let offset = 0
+  while (offset < pinyin.length) {
+    let token = pinyin[offset]
+    for (let length = Math.min(6, pinyin.length - offset); length >= 1; length--) {
+      const part = pinyin.substr(offset, length)
+      if (this.dict.syllableSet.has(part)) { token = part; break }
+    }
+    add(token)
+    offset += token.length
+  }
+  const raw = this.segmentPinyin(pinyin)
+  const stitched = raw && this.tryStitchTrailing(raw)
+  for (const result of [raw, stitched]) {
+    if (!result) continue
+    for (const syl of result.segs) add(syl)
+    add(result.rest)
+  }
+  return letters
 }
 
 SimpleInputMethod.getSingleHanzi = function(pinyin, lang = 'cn') {
   // 根据 lang 决定走哪张表
   if (lang === 'cn') {
-    return this.dict.py2hz2[pinyin]
-    || this.dict.py2hz[pinyin]
+    return (this.dict.py2hz2 || {})[pinyin]
+    || (this.dict.py2hz || {})[pinyin]
     || ''
   }
   else if (lang === 'jp') {
-    return this.dict.romaji2kanji[pinyin]
+    return (this.dict.romaji2kanji || {})[pinyin]
     || ''
   }
   // en 模式不查候选
@@ -93,7 +99,7 @@ SimpleInputMethod.getSingleHanzi = function(pinyin, lang = 'cn') {
 function getSylTopChar(dict, syl) {
   const c = dict.py2hz[syl] || ''
   if (c) return c[0]
-  const w = dict.words && dict.words[syl]
+  const w = getWord(dict, syl)
   if (w) {
     const f = Array.isArray(w) ? w[0] : w
     return f ? f[0] : ''
@@ -152,7 +158,6 @@ SimpleInputMethod.completeSyllable = function(prefix, prevSyl) {
     'p': 'ping', 'f': 'fa', 'c': 'ci', 'a': 'ai', 'o': 'ou',
   }
   const set = this.dict.syllableSet
-  const wmap = this.dict.words || {}
   const candidates = []
   for (const syl of set) {
     if (syl.indexOf(prefix) === 0 && syl.length > prefix.length) {
@@ -163,7 +168,7 @@ SimpleInputMethod.completeSyllable = function(prefix, prevSyl) {
   // 优先：能和前一个音节拼成词库词的
   if (prevSyl) {
     for (const c of candidates) {
-      if (wmap[prevSyl + c]) return c
+      if (getWord(this.dict, prevSyl + c)) return c
     }
   }
   // 常用补全映射
@@ -223,7 +228,7 @@ SimpleInputMethod.matchMixedWords = function(pinyin) {
   let mixedAbbr = ''
   for (var ti = 0; ti < tokens.length; ti++) mixedAbbr += tokens[ti][0]
 
-  const idx = this.dict.initialsIndex || {}
+  const idx = (this.dict.shards[pinyin[0]] || {}).initials || {}
   const matchedKeys = idx[mixedAbbr] || []
   if (matchedKeys.length === 0) return null
 
@@ -279,41 +284,40 @@ SimpleInputMethod.getSegmentedDisplay = function(pinyin) {
 SimpleInputMethod.getMultiHanzi = function(pinyin, lang = 'cn') {
   const empty = { words: [], composed: '', segs: null }
   if (lang !== 'cn') return empty
-  if (!this.dict.syllableSet || !this.dict.words) return empty
+  if (!this.dict.syllableSet) return empty
 
-  const wmap = this.dict.words || {}
   const wordHits = []
   var matchSource = '' // 'exact','prefix','forward','initials','composed'
 
   // 1) 词库整串精确命中
-  if (wmap[pinyin]) { pushWordHits(wmap[pinyin], wordHits); matchSource = 'exact' }
+  if (getWord(this.dict, pinyin)) { pushWordHits(getWord(this.dict, pinyin), wordHits); matchSource = 'exact' }
   // 输入进行中：前缀命中（如输入到 nihaox 时命中 nihao）
   if (wordHits.length === 0) {
     const max = Math.min(pinyin.length, 12)
     for (let len = max; len >= 2; len--) {
       const head = pinyin.substr(0, len)
-      if (wmap[head]) { pushWordHits(wmap[head], wordHits); matchSource = 'prefix'; break }
+      if (getWord(this.dict, head)) { pushWordHits(getWord(this.dict, head), wordHits); matchSource = 'prefix'; break }
     }
   }
   // 前向前缀匹配（首2字母索引，避免全表遍历；限流前6条防止海量候选）
   if (wordHits.length === 0 && pinyin.length >= 2 && !this.dict.syllableSet.has(pinyin)) {
     const pref = pinyin.substr(0, 2)
-    const fwdIdx = this.dict.forwardIndex || {}
+    const fwdIdx = (this.dict.shards[pinyin[0]] || {}).forward || {}
     const candidates = fwdIdx[pref] || []
     let fwdCount = 0
     for (let ki = 0; ki < candidates.length && fwdCount < 6; ki++) {
       if (candidates[ki].indexOf(pinyin) === 0) {
-        pushWordHits(wmap[candidates[ki]], wordHits); matchSource = 'forward'
+        pushWordHits(getWord(this.dict, candidates[ki]), wordHits); matchSource = 'forward'
         fwdCount++
       }
     }
   }
   // 首字母简拼匹配（限流前6条）
   if (wordHits.length === 0 && pinyin.length >= 2 && pinyin.length <= 8 && !this.dict.syllableSet.has(pinyin)) {
-    const idx = this.dict.initialsIndex || {}
+    const idx = (this.dict.shards[pinyin[0]] || {}).initials || {}
     const keys = idx[pinyin] || []
     for (let k = 0; k < keys.length && k < 6; k++) {
-      pushWordHits(wmap[keys[k]], wordHits); matchSource = 'initials'
+      pushWordHits(getWord(this.dict, keys[k]), wordHits); matchSource = 'initials'
     }
   }
 
@@ -323,7 +327,7 @@ SimpleInputMethod.getMultiHanzi = function(pinyin, lang = 'cn') {
     const mixed = this.matchMixedWords(pinyin)
     if (mixed && mixed.length > 0) {
       for (let mi = 0; mi < mixed.length; mi++) {
-        pushWordHits(wmap[mixed[mi].key], wordHits)
+        pushWordHits(getWord(this.dict, mixed[mi].key), wordHits)
       }
       matchSource = 'mixed'
       mixedInfo = mixed[0]
@@ -375,14 +379,13 @@ SimpleInputMethod.getMultiHanzi = function(pinyin, lang = 'cn') {
   }
   let composed = ''
   if (segs) {
-    const wmap2 = this.dict.words || {}
     const result = []
     let i = 0
     while (i < segs.length) {
       let matched = false
       for (let len = Math.min(4, segs.length - i); len >= 2; len--) {
         const key = segs.slice(i, i + len).join('')
-        const hit = wmap2[key]
+        const hit = getWord(this.dict, key)
         if (hit) {
           // 同音词数组取首个（最常见）
           result.push(Array.isArray(hit) ? hit[0] : hit)
@@ -456,8 +459,8 @@ SimpleInputMethod.getMultiHanzi = function(pinyin, lang = 'cn') {
 }
 
 SimpleInputMethod.getHanzi = function(pinyin, lang = 'cn') {
-  // 未初始化守卫（initDict 延迟到首帧后执行，此期间返回空）
-  if (!this.dict.syllableSet) return { chars: [], matched: '', multi: null }
+  // Chinese candidates require the base resource; Japanese has its own table.
+  if (lang === 'cn' && !this.dict.syllableSet) return { chars: [], matched: '', multi: null }
   // 原单字逻辑（首音节同音字串）
   let chars = []
   let matched = ''
@@ -487,6 +490,4 @@ SimpleInputMethod.getHanzi = function(pinyin, lang = 'cn') {
   return { chars, matched, multi }
 }
 
-// 注意：initDict 不再于模块加载时同步执行。
-// 由 InputMethod.ux 在 onInit 中 setTimeout 延迟到首帧渲染后调用，避免模块加载阻塞首屏。
-export { SimpleInputMethod }
+export { createInputMethod }
