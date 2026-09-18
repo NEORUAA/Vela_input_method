@@ -14,6 +14,8 @@ function finish(fail = false) {
   const request = queue.shift();
   assert.ok(request);
   if (fail) request.fail();
+  // Match Vela's packaged-resource restriction instead of Node's permissive reads.
+  else if (request.uri.endsWith('.json')) request.fail('invalid file type', 202);
   else request.success({ text: fs.readFileSync('.' + request.uri, 'utf8') });
 }
 function flush() { let limit = 30; while (queue.length && limit--) finish(); assert.ok(limit > 0); }
@@ -25,7 +27,7 @@ flush();
 assert.deepEqual(results.map(r => r.word), ['nihao']);
 assert.equal(results[0].display, "ni'hao");
 assert.ok(results[0].data.multi.words.includes('你好'));
-assert.ok(reads.every(uri => !uri.endsWith('/jp.json')));
+assert.ok(reads.every(uri => !uri.endsWith('/jp.txt')));
 assert.equal(reads.filter(uri => uri.includes('words-')).length, 2);
 const warm = reads.length;
 search('niha'); flush();
