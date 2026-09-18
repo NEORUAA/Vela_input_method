@@ -69,7 +69,7 @@ function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.
         pending = null
         // Release partial loads; the next input can retry without a stuck latch.
         engine = createInputMethod()
-        console.warn('InputMethod dictionary read failed: ' + resource)
+        console.warn('InputMethod dictionary read failed: ' + resource + ': ' + (error.message || error))
         failed.callback({ chars: [], matched: '', multi: null }, failed.word)
         return
       }
@@ -77,9 +77,10 @@ function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.
     }
     try {
       readText({
-        uri: root + resource + '.json',
+        // Older Vela file APIs reject packaged .json resources.
+        uri: root + resource + '.txt',
         success: data => finish(data, null),
-        fail: () => finish(null, true)
+        fail: (message, code) => finish(null, new Error(code + ': ' + message))
       })
     } catch (error) { finish(null, error) }
   }

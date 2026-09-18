@@ -24,6 +24,8 @@ git clone https://github.com/NEORUAA/Vela_input_method.git
 
 ### 词库维护
 
+生成的词库以 UTF-8 JSON 文本保存在 `components/InputMethod/assets/dictionary/*.txt`。部分 Vela 运行时读取包内 `.json` 文件会返回 `202: invalid file type`，因此词库资源使用 `.txt` 扩展名，运行时仍按需读取并通过 `JSON.parse` 解析。
+
 原始词库位于 `tools/dictionaries/`，修改后运行以下命令重新生成包内资源并验证（这些工具和测试不用拷贝进宿主应用）：
 
 ```bash

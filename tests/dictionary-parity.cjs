@@ -19,15 +19,15 @@ for (const [file, name] of Object.entries(names)) {
 const createEngine = vm.runInNewContext(strip(fs.readFileSync('components/InputMethod/assets/dicUtil.js', 'utf8')) + '\ncreateInputMethod');
 const engine = createEngine();
 const base = 'components/InputMethod/assets/dictionary/';
-engine.initDict(JSON.parse(fs.readFileSync(base + 'cn.json')));
-engine.dict.romaji2kanji = JSON.parse(fs.readFileSync(base + 'jp.json'));
+engine.initDict(JSON.parse(fs.readFileSync(base + 'cn.txt')));
+engine.dict.romaji2kanji = JSON.parse(fs.readFileSync(base + 'jp.txt'));
 const words = source.getWords();
 const chars = source.getDict();
 const initials = source.getInitialsIndex();
 const japanese = source.getDictJp();
 const shards = {};
 for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
-  engine.installShard(letter, JSON.parse(fs.readFileSync(base + 'words-' + letter + '.json')));
+  engine.installShard(letter, JSON.parse(fs.readFileSync(base + 'words-' + letter + '.txt')));
   shards[letter] = engine.dict.shards[letter];
 }
 

@@ -10,7 +10,7 @@ function read(name, expression) {
 const output = path.join(root, 'components/InputMethod/assets/dictionary');
 fs.mkdirSync(output, { recursive: true });
 function write(name, data) {
-  fs.writeFileSync(path.join(output, name + '.json'), JSON.stringify(data) + '\n');
+  fs.writeFileSync(path.join(output, name + '.txt'), JSON.stringify(data) + '\n');
 }
 const chars = read('dic.js', 'getDict()');
 const syllables = read('pinyin_syllables.js', 'syllables');
