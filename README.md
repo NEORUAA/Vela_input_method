@@ -41,7 +41,7 @@ git clone https://github.com/leezelyn/Vela_input_method.git
 
 首次输入按需读取基础字典和当前词片；改变首字母会淘汰旧词片，清空、隐藏或销毁组件会释放缓存。加载器同时最多执行一次文件读取，只交付最新输入的候选；词库和加载器留在组件的非响应式状态中。日语与中文一样保留完整基础字典，旧 `VIMJP1` 单字片不再随默认组件打包，但通过 `dictionarypath` 提供的旧整份 JSON 或 compact 分片仍可读取。
 
-原始词库位于 `tools/dictionaries/`，日语单字源为 `dic_jp.js`，固定顺序词组源为 `dic_jp_words.js`。词组由 JLPT 词条与 17 个基础词整理，保留基础词、N3–N5、N2、N1 的固定优先级；35 个当前转换器无法可靠表达的源读音未进入派生输入词库。仓库已包含生成资源所需的数据，生成时不依赖 JLPT 工程。
+原始词库位于 `tools/dictionaries/`，日语单字源为 `dic_jp.js`，固定顺序词组源为 `dic_jp_words.js`。词组由 JLPT 词条整理，保留基础词、N3–N5、N2、N1 的固定优先级；
 
 修改词库后运行以下命令重新生成和验证；工具与测试不用拷贝进宿主应用：
 
