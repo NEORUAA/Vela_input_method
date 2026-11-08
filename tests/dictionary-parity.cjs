@@ -24,13 +24,7 @@ const { createJapaneseDictionary } = loadModule(require('node:path').resolve('co
 const engine = createEngine();
 const base = 'components/InputMethod/assets/dictionary/';
 engine.initDict(JSON.parse(fs.readFileSync(base + 'cn.txt')));
-const jpMetadata = JSON.parse(fs.readFileSync(base + 'jp.txt', 'utf8'));
-const jpShards = {};
-for (const letter of jpMetadata.letters) jpShards[letter] = createJapaneseDictionary(fs.readFileSync(base + 'jp-' + letter + '.txt', 'utf8'));
-engine.dict.romaji2kanji = {
-  entryCount: Object.values(jpShards).reduce((sum, shard) => sum + shard.entryCount, 0),
-  get(key) { return jpShards[key[0]] ? jpShards[key[0]].get(key) : ''; }
-};
+engine.dict.romaji2kanji = createJapaneseDictionary(fs.readFileSync(base + 'jp.txt', 'utf8'));
 const words = source.getWords();
 const chars = source.getDict();
 const initials = source.getInitialsIndex();

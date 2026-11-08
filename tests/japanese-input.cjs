@@ -54,8 +54,8 @@ for (const [input, hiragana, katakana] of cases) {
   assert.equal(data.candidates[0].offset, input.length, input + ': consume raw romaji');
   assert.equal(new Set(data.chars).size, data.chars.length, input + ': no duplicates');
 }
-assert.equal(reads.filter(uri => uri.endsWith('/jp.txt')).length, 1, 'Read shard metadata only once per language session');
-assert.ok(reads.every(uri => /\/jp(?:-[a-z])?\.txt$/.test(uri)), 'Japanese typing loads only Japanese resources');
+assert.equal(reads.filter(uri => uri.endsWith('/jp.txt')).length, 1, 'Read the base only once per language session');
+assert.ok(reads.every(uri => /\/jp(?:-words-[a-z])?\.txt$/.test(uri)), 'Japanese typing loads only Japanese resources');
 assert.ok(search('neko').chars.includes('猫'), 'Keep existing kanji candidates');
 assert.ok(search('kya').chars.includes('脚'), 'Keep kanji alongside multi-character kana');
 assert.equal(search('konnichiw').chars[0], 'こんにち');

@@ -18,19 +18,26 @@ const words = read('dic_words.js', 'getWords()');
 const initials = read('dic_words_initials.js', 'getInitialsIndex()');
 write('cn', { chars, syllables });
 const japanese = read('dic_jp.js', 'getDictJp()');
-// ASCII-sorted readings permit binary lookup without expanding a JSON object.
-// Stable deduplication removes repeated candidates without changing their order.
-const jpLetters = [...new Set(Object.keys(japanese).map(key => key[0]))].sort().join('');
-write('jp', { format: 'VIMJP-SHARDS1', letters: jpLetters });
-const jpShards = {};
-for (const letter of jpLetters) jpShards[letter] = [];
-for (const key of Object.keys(japanese).sort()) {
-  const value = [...new Set(japanese[key])].join('');
-  if (!/^[a-z]+$/.test(key) || !value || /[\t\r\n]/.test(value)) throw Error('Invalid Japanese entry');
-  jpShards[key[0]].push(key + '\t' + value + '\n');
+const jpChars = {};
+for (const key of Object.keys(japanese).sort()) jpChars[key] = [...new Set(japanese[key])].join('');
+const engineSource = fs.readFileSync(path.join(root, 'components/InputMethod/assets/dicUtil.js'), 'utf8');
+const jpSyllables = vm.runInNewContext(engineSource.replace(/export\s*\{[^}]+\};?/g, '') + '\nObject.keys(kana).sort()');
+write('jp', { chars: jpChars, syllables: jpSyllables });
+const jpWords = read('dic_jp_words.js', 'getWordsJp()');
+for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
+  const shard = { words: {}, initials: {}, forward: {} };
+  for (const key of Object.keys(jpWords).sort()) {
+    if (key[0] !== letter) continue;
+    shard.words[key] = jpWords[key];
+    if (key.length >= 2) (shard.forward[key.slice(0, 2)] || (shard.forward[key.slice(0, 2)] = [])).push(key);
+  }
+  const ids = {};
+  Object.keys(shard.words).forEach((key, index) => { ids[key] = index; });
+  for (const prefix of Object.keys(shard.forward)) shard.forward[prefix] = shard.forward[prefix].map(key => ids[key]);
+  write('jp-words-' + letter, shard);
 }
-for (const letter of jpLetters) {
-  fs.writeFileSync(path.join(output, 'jp-' + letter + '.txt'), 'VIMJP1\n' + jpShards[letter].join(''));
+for (const name of fs.readdirSync(output)) {
+  if (/^jp-[a-z]\.txt$/.test(name)) fs.unlinkSync(path.join(output, name));
 }
 for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
   const shard = { words: {}, initials: {}, forward: {} };
@@ -55,4 +62,4 @@ for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
   }
   write('words-' + letter, shard);
 }
-console.log('Generated Chinese resources, ' + jpLetters.length + ' compact Japanese shards and 26 Chinese word shards.');
+console.log('Generated Chinese and Japanese bases and 26 word shards per language.');

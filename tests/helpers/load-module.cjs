@@ -6,6 +6,7 @@ const vm = require('node:vm');
 function loadModule(filename, systemModules = {}) {
   const context = { console };
   let source = fs.readFileSync(filename, 'utf8');
+  if (filename.endsWith('.ux')) source = source.split('<script>')[1].split('</script>')[0];
   source = source.replace(/^import (.+) from ['"](.+)['"];?\s*$/gm, (_, binding, specifier) => {
     const dependency = specifier.startsWith('.')
       ? loadModule(path.resolve(path.dirname(filename), specifier), systemModules)
