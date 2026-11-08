@@ -19,38 +19,20 @@ git clone https://github.com/leezelyn/Vela_input_method.git
 在宿主 `manifest.json` 的 `features` 中声明组件使用的接口（已有声明无需重复添加）：
 
 ```json
-[
-  { "name": "system.file" },
-  { "name": "system.device" },
-  { "name": "system.vibrator" }
-]
+  { "name": "system.file" }
 ```
 
 ### 词库维护
 
-生成的词库统一以 UTF-8 JSON 保存为 `components/InputMethod/assets/dictionary/*.txt`。部分 Vela 运行时读取包内 `.json` 文件会返回 `202: invalid file type`，因此继续使用 `.txt` 扩展名。
+生成的词库以 UTF-8 JSON 文本保存在 components/InputMethod/assets/dictionary/*.txt。部分 Vela 运行时读取包内 .json 文件会返回 202: invalid file type，因此词库资源使用 .txt 扩展名，运行时仍按需读取并通过 JSON.parse 解析。
 
-中文和日语使用同一套资源结构：
-
-| 资源 | 中文 | 日语 | JSON 字段 |
-| --- | --- | --- | --- |
-| 基础字典 | `cn.txt` | `jp.txt` | `chars`、`syllables` |
-| 26 个首字母词组片 | `words-a.txt` … `words-z.txt` | `jp-words-a.txt` … `jp-words-z.txt` | `words`、`initials`、`forward` |
-
-`words` 单个词形存字符串，多个词形存数组；索引使用片内数字 ID。日语的 `initials` 为空，未引入简拼模式。日语保留原有 1,203 个单字读音，并提供 9,313 组词读音、10,288 个词形。词组片合计 242,779 字节，最大片 39,050 字节；这些文件大小不代表实际运行内存。
-
-首次输入按需读取基础字典和当前词片；改变首字母会淘汰旧词片，清空、隐藏或销毁组件会释放缓存。加载器同时最多执行一次文件读取，只交付最新输入的候选；词库和加载器留在组件的非响应式状态中。日语与中文一样保留完整基础字典，旧 `VIMJP1` 单字片不再随默认组件打包，但通过 `dictionarypath` 提供的旧整份 JSON 或 compact 分片仍可读取。
-
-原始词库位于 `tools/dictionaries/`，日语单字源为 `dic_jp.js`，固定顺序词组源为 `dic_jp_words.js`。词组由 JLPT 词条整理，保留基础词、N3–N5、N2、N1 的固定优先级；
-
-修改词库后运行以下命令重新生成和验证；工具与测试不用拷贝进宿主应用：
+原始词库位于 tools/dictionaries/，修改后运行以下命令重新生成包内资源并验证（这些工具和测试不用拷贝进宿主应用）：
 
 ```bash
 node tools/build-dictionaries.cjs
-node --test tests/*.cjs
+node tests/dictionary-parity.cjs
+node tests/dictionary-loader.cjs
 ```
-
-完整复制 `components` 时，基础字典、全部 26 个日语词片、加载器和查询算法必须配套更新。
 
 ---
 
