@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const path = require('node:path');
 const { loadModule } = require('./helpers/load-module.cjs');
 const root = path.resolve(__dirname, '..');
@@ -45,6 +46,10 @@ assert.equal(candidate('nihongow', '日本語').offset, 7, 'Selecting a word pre
 const exact = search('nihon').candidates.map(item => item.text);
 assert.ok(exact.indexOf('日本') < exact.indexOf('日本語'), 'Exact reading precedes longer completions');
 assert.equal(new Set(exact).size, exact.length, 'Do not duplicate equal surface candidates');
+const realTShard = JSON.parse(fs.readFileSync(path.join(root, 'components/InputMethod/assets/dictionary/jp-words-t.txt')));
+const apostropheCandidates = engine.getJapaneseCandidates("tan'i", {}, realTShard).candidates.map(item => item.text);
+assert.ok(apostropheCandidates.includes('単位'), 'An apostrophe must preserve the tan\'i reading');
+assert.ok(!apostropheCandidates.includes('谷'), 'An apostrophe must not fall back to the tani reading');
 const stable = JSON.stringify(search('niho'));
 search('sh'); search('gakkou');
 assert.equal(JSON.stringify(search('niho')), stable, 'Candidate order must not learn from earlier queries');

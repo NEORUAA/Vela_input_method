@@ -7,12 +7,13 @@ const HEADER = 'VIMJP1\n'
 
 // Readers live outside reactive component data and are released with the loader.
 // Keep support for older compact and custom resources when dictionarypath changes.
-function createJapaneseDictionary(text) {
-  if (typeof text !== 'string') throw new Error('Invalid Japanese dictionary text')
-  if (/^\s*\{/.test(text)) {
+function createJapaneseDictionary(source) {
+  if (typeof source !== 'string') {
+    if (!source || typeof source !== 'object' || Array.isArray(source)) {
+      throw new Error('Invalid Japanese dictionary text')
+    }
     // Older/custom dictionarypath resources can still use the original JSON format.
-    const parsed = JSON.parse(text)
-    const values = parsed.chars && Array.isArray(parsed.syllables) ? parsed.chars : parsed
+    const values = source.chars && Array.isArray(source.syllables) ? source.chars : source
     const keys = Object.keys(values)
     for (const key of keys) {
       if (!/^[a-z]+$/.test(key) || typeof values[key] !== 'string' || !values[key]) {
@@ -21,6 +22,8 @@ function createJapaneseDictionary(text) {
     }
     return { get: key => values[key] || '', entryCount: keys.length, indexBytes: 0 }
   }
+  const text = source
+  if (/^\s*\{/.test(text)) return createJapaneseDictionary(JSON.parse(text))
   if (text.indexOf(HEADER) !== 0 || text[text.length - 1] !== '\n') {
     throw new Error('Invalid Japanese dictionary format')
   }
@@ -90,7 +93,9 @@ function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.
       return
     }
     let resource = ''
+    let japaneseWordKey = ''
     if (language === 'jp') {
+      japaneseWordKey = getJapaneseWordKey(request.word)
       if (!engine.dict.romaji2kanji && typeof engine.dict.jpShardLetters !== 'string') resource = 'jp'
       else {
         if (typeof engine.dict.jpShardLetters === 'string') {
@@ -103,7 +108,7 @@ function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.
           if (engine.dict.jpShardLetters.indexOf(letter) !== -1 && !engine.dict.romaji2kanji) resource = 'jp-' + letter
         }
         if (!resource && typeof engine.dict.jpWordLetters === 'string') {
-          const wordLetter = getJapaneseWordKey(request.word)[0] || ''
+          const wordLetter = japaneseWordKey[0] || ''
           if (engine.dict.jpWordShardLetter !== wordLetter) {
             delete engine.dict.jpWordShard
             engine.dict.jpWordShardLetter = wordLetter
@@ -128,7 +133,7 @@ function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.
     if (!resource) {
       pending = null
       if (language === 'jp') {
-        const data = getJapaneseCandidates(request.word, engine.dict.romaji2kanji || {}, engine.dict.jpWordShard)
+        const data = getJapaneseCandidates(request.word, engine.dict.romaji2kanji || {}, engine.dict.jpWordShard, japaneseWordKey)
         request.callback(data, data.display)
       } else request.callback(engine.getHanzi(request.word, language), engine.getSegmentedDisplay(request.word))
       return
@@ -170,7 +175,7 @@ function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.
                 engine.dict.jpWordLetters = wordLetters
               }
             } else {
-              engine.dict.romaji2kanji = createJapaneseDictionary(data.text)
+              engine.dict.romaji2kanji = createJapaneseDictionary(metadata || data.text)
               if (metadata && metadata.chars && Array.isArray(metadata.syllables)) {
                 // Same base + 26 word-shard layout as CN; no separate metadata.
                 engine.dict.jpWordLetters = 'abcdefghijklmnopqrstuvwxyz'

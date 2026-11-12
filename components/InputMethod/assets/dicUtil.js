@@ -80,7 +80,15 @@ SimpleInputMethod.installJapaneseWordShard = function(letter, shard) {
       }
     }
   }
+  const forward3 = {}
+  for (const key of keys) {
+    const prefix = key.slice(0, 3)
+    if (!forward3[prefix]) forward3[prefix] = []
+    forward3[prefix].push(key)
+  }
   shard.wordKeys = keys
+  shard.forward3 = forward3
+  shard.readingCache = Object.create(null)
   this.dict.jpWordShard = shard
 }
 
@@ -662,8 +670,8 @@ function japaneseReadingToRomaji(text) {
   return result
 }
 
-function getJapaneseWordKey(input) {
-  const converted = convertRomaji(input)
+function getJapaneseWordKey(input, converted = null) {
+  converted = converted || convertRomaji(input)
   const tail = input.slice(converted.offset).toLowerCase()
   // The last っ borrows the next consonant even while that syllable is incomplete.
   if (converted.reading.slice(-1) === 'っ' && /^[bcdfghjkpqrstvwz]/.test(tail)) {
@@ -677,31 +685,48 @@ function getJapaneseWordKey(input) {
   return japaneseReadingToRomaji(converted.reading) + tail
 }
 
-function getJapaneseWordCandidates(input, shard) {
+function getJapaneseWordCandidates(input, shard, converted = null, prefix = null) {
   if (!input || !shard || !shard.words) return []
-  const converted = convertRomaji(input)
+  converted = converted || convertRomaji(input)
   const hits = []
+  const hitTexts = new Set()
   const limit = 12
+  const wordKeys = shard.wordKeys || Object.keys(shard.words)
+  const readingCache = shard.readingCache || (shard.readingCache = Object.create(null))
   function addWords(key, offset) {
     const value = shard.words[key]
     const words = typeof value === 'string' ? [value] : (value || [])
-    const reading = convertRomaji(key).reading
+    if (!Object.prototype.hasOwnProperty.call(readingCache, key)) {
+      readingCache[key] = convertRomaji(key).reading
+    }
+    const reading = readingCache[key]
     for (let i = 0; i < words.length && hits.length < limit; i++) {
-      if (!hits.some(hit => hit.text === words[i])) hits.push({ text: words[i], reading, offset })
+      if (!hitTexts.has(words[i])) {
+        hitTexts.add(words[i])
+        hits.push({ text: words[i], reading, offset })
+      }
     }
   }
-  const prefix = getJapaneseWordKey(input)
+  prefix = prefix === null ? getJapaneseWordKey(input, converted) : prefix
   const explicitNasalReading = /(?:nn|n')$/i.test(input) ? converted.reading : ''
   addWords(prefix, input.length)
-  const keys = prefix.length >= 2
-    ? (shard.forward[prefix.slice(0, 2)] || [])
-    : (shard.wordKeys || Object.keys(shard.words))
+  const keys = prefix.length >= 3
+    ? (shard.forward3 && shard.forward3[prefix.slice(0, 3)]) || (shard.forward[prefix.slice(0, 2)] || [])
+    : prefix.length >= 2
+      ? (shard.forward[prefix.slice(0, 2)] || [])
+    : wordKeys
   for (let i = 0; i < keys.length && hits.length < limit; i++) {
-    if (keys[i].indexOf(prefix) !== 0 || keys[i] === prefix) continue
+    const key = typeof keys[i] === 'number' ? wordKeys[keys[i]] : keys[i]
+    if (!key || key.indexOf(prefix) !== 0 || key === prefix) continue
     // shin' and shinn explicitly mean しん; an ambiguous terminal n may still
     // complete to na/ni/etc, but an explicit nasal cannot turn into another kana.
-    if (explicitNasalReading && convertRomaji(keys[i]).reading.indexOf(explicitNasalReading) !== 0) continue
-    addWords(keys[i], input.length)
+    if (explicitNasalReading) {
+      if (!Object.prototype.hasOwnProperty.call(readingCache, key)) {
+        readingCache[key] = convertRomaji(key).reading
+      }
+      if (readingCache[key].indexOf(explicitNasalReading) !== 0) continue
+    }
+    addWords(key, input.length)
   }
   // Shorter complete words follow full-prefix completions. Keep raw offsets so
   // selecting 日本語 in nihongow leaves the unfinished w available for typing.
@@ -717,22 +742,27 @@ function getJapaneseWordCandidates(input, shard) {
   return hits
 }
 
-function getJapaneseCandidates(input, dictionary = {}, wordShard = null) {
+function getJapaneseCandidates(input, dictionary = {}, wordShard = null, wordKey = null) {
   const converted = convertRomaji(input)
+  const prefix = wordKey === null ? getJapaneseWordKey(input, converted) : wordKey
   const candidates = []
+  const candidateTexts = new Set()
   function add(text, offset) {
-    if (text && !candidates.some(candidate => candidate.text === text)) candidates.push({ text, offset })
+    if (text && !candidateTexts.has(text)) {
+      candidateTexts.add(text)
+      candidates.push({ text, offset })
+    }
   }
   add(converted.reading, converted.offset)
   add(katakana(converted.reading), converted.offset)
-  for (const hit of getJapaneseWordCandidates(input, wordShard)) {
+  for (const hit of getJapaneseWordCandidates(input, wordShard, converted, prefix)) {
     add(hit.text, hit.offset)
     add(hit.reading, hit.offset)
   }
   // Match only complete romaji boundaries: kani must not consume kan as 漢.
   for (let i = converted.tokens.length - 1; i >= 0; i--) {
     const offset = converted.tokens[i].offset
-    const key = input.slice(0, offset).toLowerCase().replace(/'/g, '')
+    const key = input.slice(0, offset).toLowerCase()
     const value = typeof dictionary.get === 'function' ? dictionary.get(key) : dictionary[key]
     if (!value) continue
     for (const character of value.split('')) add(character, offset)
