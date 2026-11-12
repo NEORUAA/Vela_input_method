@@ -107,7 +107,7 @@ function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.
           }
           if (engine.dict.jpShardLetters.indexOf(letter) !== -1 && !engine.dict.romaji2kanji) resource = 'jp-' + letter
         }
-        if (!resource && typeof engine.dict.jpWordLetters === 'string') {
+        if (!resource && typeof engine.dict.jpWordLetters === 'string' && japaneseWordKey.length >= 2) {
           const wordLetter = japaneseWordKey[0] || ''
           if (engine.dict.jpWordShardLetter !== wordLetter) {
             delete engine.dict.jpWordShard
@@ -133,7 +133,8 @@ function createDictionaryLoader(root = DEFAULT_ROOT, readText = options => file.
     if (!resource) {
       pending = null
       if (language === 'jp') {
-        const data = getJapaneseCandidates(request.word, engine.dict.romaji2kanji || {}, engine.dict.jpWordShard, japaneseWordKey)
+        const wordShard = japaneseWordKey.length >= 2 ? engine.dict.jpWordShard : null
+        const data = getJapaneseCandidates(request.word, engine.dict.romaji2kanji || {}, wordShard, japaneseWordKey)
         request.callback(data, data.display)
       } else request.callback(engine.getHanzi(request.word, language), engine.getSegmentedDisplay(request.word))
       return

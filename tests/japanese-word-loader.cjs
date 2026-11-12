@@ -23,6 +23,19 @@ assert.ok(cnFormatResult.chars.includes('日本語'), 'A CN-format alternative a
 assert.equal(cnFormatResult.candidates.find(item => item.text === '日本語').offset, 4);
 assert.deepEqual(cnFormatReads, ['jp.txt', 'jp-words-n.txt'], 'CN layout reads one base and one word shard');
 cnFormat.destroy();
+const firstLetterReads = [];
+const firstLetterLoader = createDictionaryLoader(undefined, request => {
+  firstLetterReads.push(path.basename(request.uri));
+  request.success({ text: fs.readFileSync(path.join(root, request.uri), 'utf8') });
+});
+let firstLetterResult;
+firstLetterLoader.search('n', 'jp', data => { firstLetterResult = data; });
+assert.ok(firstLetterResult.chars.includes('ん'), 'A single Japanese letter still returns base kana candidates');
+assert.deepEqual(firstLetterReads, ['jp.txt'], 'The first Japanese letter must not load a large word shard');
+firstLetterLoader.search('niho', 'jp', data => { firstLetterResult = data; });
+assert.ok(firstLetterResult.chars.includes('日本'), 'The second Japanese letter enables word completion');
+assert.deepEqual(firstLetterReads, ['jp.txt', 'jp-words-n.txt']);
+firstLetterLoader.destroy();
 const requests = [], reads = [], results = [];
 let active = 0, maxActive = 0;
 const loader = createDictionaryLoader(undefined, request => {
