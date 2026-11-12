@@ -8,7 +8,7 @@
 ### 下载项目代码
 
 ```bash
-git clone https://github.com/leezelyn/Vela_input_method.git
+git clone https://github.com/NEORUAA/Vela_input_method.git
 ```
 
 ### 拷贝代码

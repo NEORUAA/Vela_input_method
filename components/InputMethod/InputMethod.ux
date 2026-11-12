@@ -698,8 +698,12 @@ export default {
       that.resultList = that.lang === "jp" && that.jpkanaonly
         ? data.chars.filter(function (value) { return /^[\u3040-\u30ff]+$/.test(value); })
         : data.chars;                       // 单字候选（沿用）
+      const candidateTextSet = Object.create(null);
+      for (let ci = 0; ci < that.resultList.length; ci++) {
+        candidateTextSet[that.resultList[ci]] = true;
+      }
       that.candidateOffsets = (data.candidates || []).filter(function (candidate) {
-        return that.resultList.indexOf(candidate.text) !== -1;
+        return candidateTextSet[candidate.text] === true;
       });
       that.matchedLen = data.matched ? data.matched.length : 0;
       const multi = data.multi || { words: [], composed: "", sylTopChars: [] };
