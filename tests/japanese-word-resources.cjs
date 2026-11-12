@@ -29,6 +29,7 @@ for (const letter of letters) {
     const values = typeof shard.words[key] === 'string' ? [shard.words[key]] : shard.words[key];
     assert.ok(values.length > 0);
     assert.equal(new Set(values).size, values.length, 'Equal words are deduplicated per reading');
+    assert.ok(values.every(value => !value.includes('・')), key + ': alternative forms must be separate candidates');
     assert.equal(typeof shard.words[key] === 'string', values.length === 1, 'Like CN, singleton words are stored as strings');
     if (key.length >= 2) {
       assert.ok(shard.forward[key.slice(0, 2)].includes(keys.indexOf(key)), 'The forward index covers the word');
@@ -52,6 +53,8 @@ for (const letter of letters) {
   assert.ok(size <= 64 * 1024, 'A Japanese word read must stay below the 64 KiB resource budget');
   bytes += size; maxBytes = Math.max(maxBytes, size);
 }
+const abura = JSON.parse(fs.readFileSync(path.join(assets, 'dictionary/jp-words-a.txt'), 'utf8'));
+assert.deepEqual(abura.words.abura, ['脂', '油', 'あぶら'], 'Split middle-dot alternatives into individual surfaces');
 assert.ok(readings >= 9000 && forms >= 10000, 'The generated input vocabulary must retain the JLPT dataset coverage');
 assert.equal(fs.readdirSync(path.join(assets, 'dictionary')).filter(name => /^jp-[a-z]\.txt$/.test(name)).length, 0,
   'The CN-style package must not retain obsolete compact character shards');
