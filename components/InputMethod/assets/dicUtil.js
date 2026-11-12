@@ -691,7 +691,6 @@ function getJapaneseWordCandidates(input, shard, converted = null, prefix = null
   const hits = []
   const hitTexts = new Set()
   const limit = 12
-  const wordKeys = shard.wordKeys || Object.keys(shard.words)
   const readingCache = shard.readingCache || (shard.readingCache = Object.create(null))
   function addWords(key, offset) {
     const value = shard.words[key]
@@ -710,13 +709,15 @@ function getJapaneseWordCandidates(input, shard, converted = null, prefix = null
   prefix = prefix === null ? getJapaneseWordKey(input, converted) : prefix
   const explicitNasalReading = /(?:nn|n')$/i.test(input) ? converted.reading : ''
   addWords(prefix, input.length)
+  if (prefix.length < 2) return hits
+  let wordKeys = shard.wordKeys
   const keys = prefix.length >= 3
     ? (shard.forward3 && shard.forward3[prefix.slice(0, 3)]) || (shard.forward[prefix.slice(0, 2)] || [])
-    : prefix.length >= 2
-      ? (shard.forward[prefix.slice(0, 2)] || [])
-    : wordKeys
+    : (shard.forward[prefix.slice(0, 2)] || [])
   for (let i = 0; i < keys.length && hits.length < limit; i++) {
-    const key = typeof keys[i] === 'number' ? wordKeys[keys[i]] : keys[i]
+    const key = typeof keys[i] === 'number'
+      ? (wordKeys || (wordKeys = Object.keys(shard.words)))[keys[i]]
+      : keys[i]
     if (!key || key.indexOf(prefix) !== 0 || key === prefix) continue
     // shin' and shinn explicitly mean しん; an ambiguous terminal n may still
     // complete to na/ni/etc, but an explicit nasal cannot turn into another kana.

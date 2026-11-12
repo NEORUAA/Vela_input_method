@@ -50,6 +50,12 @@ const realTShard = JSON.parse(fs.readFileSync(path.join(root, 'components/InputM
 const apostropheCandidates = engine.getJapaneseCandidates("tan'i", {}, realTShard).candidates.map(item => item.text);
 assert.ok(apostropheCandidates.includes('単位'), 'An apostrophe must preserve the tan\'i reading');
 assert.ok(!apostropheCandidates.includes('谷'), 'An apostrophe must not fall back to the tani reading');
+const singleLetterShard = { words: { g: '字' }, forward: {} };
+Object.defineProperty(singleLetterShard, 'wordKeys', {
+  get() { throw new Error('single-letter lookup must not scan wordKeys'); }
+});
+assert.ok(engine.getJapaneseCandidates('g', {}, singleLetterShard).candidates.some(item => item.text === '字'),
+  'Single-letter lookup must stop after its exact word');
 const stable = JSON.stringify(search('niho'));
 search('sh'); search('gakkou');
 assert.equal(JSON.stringify(search('niho')), stable, 'Candidate order must not learn from earlier queries');
