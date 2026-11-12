@@ -25,8 +25,8 @@
           <div style="position: absolute;top:38px;left:78px;width:324px;height:52px;background-color:rgb(38,38,38);border-radius: 12px;border: 3px solid #333333" show="{{downFlag===''&& !numFlag}}"></div>
           <img show="{{resultRow0.length > 0}}" style="position: absolute;top:43px;left:355px;" src="./assets/full/down.png" @click="onBtnClick('down')" />
           <!-- 带变量的相对路径在 aiot-tookit 2.0.4 中修复 -->
-          <img src="./assets/full/{{lang}}.png" style="position: absolute;top:38px;left:7px;width:67px;height:52px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang!='jp'}}" />
-          <img src="./assets/full/jp.png" style="position: absolute;top:38px;left:7px;width:67px;height:52px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" />
+          <img src="./assets/full/{{lang}}.png" style="position: absolute;top:38px;left:7px;width:67px;height:52px;" @click="onBtnClick('lang')" if="{{(downFlag==='' && !numFlag && lang!='jp') && langlock!=='jp'}}" />
+          <img src="./assets/full/jp.png" style="position: absolute;top:38px;left:7px;width:67px;height:52px;" @click="onBtnClick('lang')" if="{{(downFlag==='' && !numFlag && lang==='jp') && langlock!=='jp'}}" />
           <!-- 拼音小字行：circle 屏在键盘内部绝对定位（对齐参考工程），浮于候选行上方，不占键盘高度 -->
           <div style="position: absolute;top:-4px;left:78px;width:324px;" show="{{(lang==='cn' || lang==='jp') && downFlag==='' && !numFlag && cval}}">
             <text class="caltext" style="width:296px;">{{cvalDisplay}}_</text>
@@ -70,7 +70,8 @@
             <img src="./assets/full/0.png" style="width:54px;height:52px;" @click="onSelect('0')" />
           </div>
           <div style="position: absolute;top:152px;left:23px;width:438px;height:52px;" show="{{numFlag}}">
-            <img src="./assets/full/2-1.png" style="width:60px;height:52px;margin-right: 4px;" @click="onSelect('~')" />
+            <img if="{{!numFlag_jp}}" src="./assets/full/2-1.png" style="width:60px;height:52px;margin-right: 4px;" @click="onSelect('~')" />
+            <text else class="calbtnfull" style="width:60px;height:52px;margin-right:4px;" @click="onSelect(keys['sign_jp'][1][0])">'</text>
             <text if="{{!numFlag_jp}}" class="calbtnfull" for="{{item in keys['sign62'][1]}}" @click="onSelect(item)">{{item}}</text>
             <text else class="calbtnfull" for="{{item in keys['sign62_jp'][1]}}" @click="onSelect(item)">{{item}}</text>
             <img src="./assets/full/2-2.png" style="width:60px;height:52px;" @click="onSelect('?')" />
@@ -97,7 +98,7 @@
           <div style="position: absolute;top:35px;left:95px;width:290px;height:60px;background-color:rgb(38,38,38);border-radius: 999px;border: 3px solid #333333" show="{{downFlag===''&& !numFlag}}"></div>
           <img show="{{resultRow0.length > 0}}" style="position: absolute;top:44px;left:338px;" src="./assets/full/down.png" @click="onBtnClick('down')" />
           <!-- 带变量的相对路径在 aiot-tookit 2.0.4 中修复 -->
-          <img src="./assets/t9/{{lang}}.png" style="position: absolute;top:35px;left:31px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag}}" />
+          <img src="./assets/t9/{{lang}}.png" style="position: absolute;top:35px;left:31px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{(downFlag==='' && !numFlag) && langlock!=='jp'}}" />
           <div show="{{downFlag==='' && !numFlag}}" style="position: absolute;top:-4px;left:240px;width:145px;height:40px;justify-content:flex-end">
             <text for="{{waitingList}}" class="waiting-keys" style="color:{{$idx===waitingIndex ? 'rgb(13,132,255)' : 'white'}};" @click="onSelectWaiting($idx)">{{waitingList[$idx]}}</text>
           </div>
@@ -220,8 +221,9 @@
           </scroll>
         </div>
         <div style="width: 100%; flex-direction: row; justify-content: center; top:6px; padding:0 6px;">
-          <img src="./assets/horizontal/cn.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='cn'}}" />
-          <img src="./assets/horizontal/jp.png" style="padding:6px;width:60px;height:60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" />
+          <img src="./assets/horizontal/cn.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{(downFlag==='' && !numFlag && lang==='cn') && langlock!=='jp'}}" />
+          <img src="./assets/horizontal/jp.png" style="padding:6px;width:60px;height:60px;" @click="onBtnClick('lang')" if="{{(downFlag==='' && !numFlag && lang==='jp') && langlock!=='jp'}}" />
+          <img src="./assets/horizontal/123.png" style="margin-left:6px;padding:6px;width:60px;height:60px;" @click="onBtnClick('switchNum_jp')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" />
           <div if="{{(lang === 'cn' || lang === 'jp') && !numFlag}}" style="margin-left: 6px;flex: 1;height: 60px;background-color:#262626;border-color: #333333; border-width: 3px; border-radius: 100px;flex-direction: row;align-items:center">
             <!-- 候选横滚行：整词在前、单字随后（拼音已在键盘上方独立小字行显示，这里不放 cval） -->
             <scroll id="cvalWaiting" scroll-x="{{true}}" style="position:absolute;width: 85%;height: 42px;">
@@ -231,9 +233,8 @@
             </scroll>
             <img if="{{resultRow0.length > 0}}" style="position:absolute;right: 5px; width: 60px;height: 40px;" src="./assets/horizontal/down2.png" @click="onBtnClick('down')" />
           </div>
-          <!-- <img src="./assets/t9/123.png" style="margin-left:6px;padding:6px;width:60px;height:60px;" @click="onBtnClick('switchNum_jp')" if="{{downFlag==='' && !numFlag && lang==='jp'}}" /> -->
-        
-          <img src="./assets/horizontal/en.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='en'}}" />
+
+          <img src="./assets/horizontal/en.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{(downFlag==='' && !numFlag && lang==='en') && langlock!=='jp'}}" />
           <img src="./assets/horizontal/bigA.png" style="padding: 6px;margin-left: 6px;width:94px;height:60px;" @click="onBtnClick('switchLow')" if="{{downFlag==='' && upperFlag && lang==='en'&& !numFlag}}" />
           <img src="./assets/horizontal/a.png" style="padding: 6px;margin-left: 6px;width:94px;height:60px;" @click="onBtnClick('switchUpper')" if="{{downFlag==='' && !upperFlag && lang==='en'&& !numFlag}}" />
           <img src="./assets/horizontal/123.png" style="margin-left: 6px;padding: 6px;margin-left: 6px;width: 94px;height: 60px;" @click="onBtnClick('switchNum')" if="{{downFlag==='' && !numFlag && lang==='en'}}" />
@@ -304,7 +305,7 @@
           </scroll>
           <img show="{{resultRow0.length > 0}}" style="position: absolute;left: 120px;top: 57px;width: 60px;height: 40px;" src="./assets/arc/down2.png" @click="onBtnClick('down')" />
           <!-- 带变量的相对路径在 aiot-tookit 2.0.4 中修复 -->
-          <img src="./assets/arc/{{lang}}.png" style="position: absolute;top:0px;left:9px;width: 48px;height: 42px;" @click="onBtnClick('lang')" show="{{downFlag==='' && !numFlag && !numFlag_jp}}" />
+          <img src="./assets/arc/{{lang}}.png" style="position: absolute;top:0px;left:9px;width: 48px;height: 42px;" @click="onBtnClick('lang')" show="{{(downFlag==='' && !numFlag && !numFlag_jp) && langlock!=='jp'}}" />
           <img src="./assets/arc/back2.png" style="position: absolute;top:0px;left:9px;width: 48px;height: 42px;" @click="onBtnClick('switchCn')" show="{{numFlag && lang==='cn' ||numFlag_jp && lang==='jp' }}" />
           <img src="./assets/arc/123.png" style="position: absolute;left: 70px;top: 0px;width: 52px;height: 42px;" @click="onBtnClick('switchNum')" show="{{downFlag==='' && !numFlag && lang==='cn'}}" />
           <img src="./assets/arc/123.png" style="position: absolute;left: 70px;top: 0px;width: 52px;height: 42px;" @click="onBtnClick('switchNum_jp')" show="{{downFlag==='' && !numFlag_jp && lang==='jp'}}" />
@@ -314,7 +315,7 @@
         </div>
         <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
         <div style="position: absolute;top: 47px;width: 100%;height: 263px;background-color: black;" if="{{downFlag==='down'}}">
-          <div style="position: absolute;left: {{(screenWidth - 192)/2}}px;width: 192px;height: 263px;"> 
+          <div style="position: absolute;left: {{(screenWidth - 192)/2}}px;width: 192px;height: 263px;">
             <scroll scroll-y="{{true}}" class="list66 expanded-scroll">
               <div class="expanded-candidates expanded-candidates66">
                 <text class="calbtn-down-text" for="{{item in resultList2}}" @click="onRsSelect(item)">{{item}}</text>
@@ -342,6 +343,9 @@ function deleteLast(t) {
 }
 export default {
   props: {
+    // Optional Japanese-only mode and kana-only candidates for search fields.
+    langlock: { default: "" },
+    jpkanaonly: { default: false },
     dictionarypath: {
       default: "/components/InputMethod/assets/dictionary/",
     },
@@ -371,6 +375,9 @@ export default {
     resultWordList: [],
     resultRow0: [],
     resultRow0IsWord: [],
+    // Japanese candidates may contain several kana but consume only a romaji prefix.
+    candidateOffsets: [],
+    dictionaryPending: false,
     // 当前已匹配的拼音前缀长度（用于逐字递进选择：选一个单字只消费对应长度）
     matchedLen: 0,
     // 每音节首字 + 累计拼音偏移（逐字递进选择：选哪个字就消费到哪个偏移位置）
@@ -404,7 +411,7 @@ export default {
       ],
       sign_jp: [
         ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-        ["~", "•", "@", "#", "%", "「", "」", "*", "?", "/"],
+        ["'", "•", "@", "#", "%", "「", "」", "*", "?", "/"],
         ["(", ")", "-", "…", ":", ";", "、", "。", "!"],
       ],
       sign62: [
@@ -430,6 +437,7 @@ export default {
     },
   },
   onInit() {
+    if (this.langlock === "jp" && this.keyboardtype !== "T9") this.lang = "jp";
     // Initialize the loader independently of hide watchers (unreliable on some devices).
     // Dictionary data is loaded on input; failed reads can retry on the next query.
     Object.defineProperty(this, "_dictionary", {
@@ -458,6 +466,16 @@ export default {
   },
   onRsSelect(txt) {
     this.onVibrate();
+    if (this.lang === "jp") {
+      const candidate = this.candidateOffsets.find(item => item.text === txt);
+      if (!candidate) return;
+      this.cval = this.cval.slice(candidate.offset);
+      this.addAllTxt(txt);
+      this.clearWaiting();
+      this.resetResultList();
+      this.downFlag = "";
+      return;
+    }
     // 检查是否为每音节首字 → 按偏移消费 cval 前缀
     var consumed = false;
     if (txt.length === 1 && this.sylTopChars.length > 0 && this.cval.length > 0) {
@@ -491,10 +509,12 @@ export default {
     this.downFlag = "";
   },
   onBtnClick(sign) {
+    if (sign === "lang" && this.langlock === "jp") return;
     this.onVibrate();
     switch (sign) {
       case "AC":
         this.cval = "";
+        this.downFlag = "";
         this.clearWaiting();
         this.resetResultList();
         break;
@@ -511,6 +531,7 @@ export default {
           }
         }
         this.cval = "";
+        this.downFlag = "";
         this.clearWaiting();
         this.resetResultList();
         break;
@@ -526,7 +547,11 @@ export default {
         }
         break;
       case "space":
-        this.addAllTxt(" ");
+        if (this.lang === "jp" && this.cval) {
+          if (this.dictionaryPending) return;
+          if (this.resultRow0.length) this.onRsSelect(this.resultRow0[0]);
+          else this.pushCval();
+        } else this.addAllTxt(" ");
         break;
       case "down":
         this.downFlag = this.downFlag === "down" ? "" : "down";
@@ -548,15 +573,16 @@ export default {
         break;
       case "switchNum":
         this.numFlag = true;
-        this.numFlag_jp = false;
-        this.cval = "";
+        this.numFlag_jp = this.lang === "jp";
+        if (this.lang !== "jp") this.cval = "";
+        this.downFlag = "";
         this.clearWaiting();
         this.resetResultList();
         break;
       case "switchNum_jp":
         this.numFlag = true;
         this.numFlag_jp = true;
-        this.cval = "";
+        this.downFlag = "";
         this.clearWaiting();
         this.resetResultList();
         break;
@@ -621,6 +647,7 @@ export default {
     this.cvalDisplay = this.cval + watingStr;
     if (!(this.cval + watingStr) || (this.lang !== "cn" && this.lang !== "jp")) {
       this._dictionary.release();
+      this.dictionaryPending = false;
       this.clearCandidates();
       return;
     }
@@ -629,6 +656,7 @@ export default {
   clearCandidates() {
     this.resultList = [];
     this.resultWordList = [];
+    this.candidateOffsets = [];
     this.matchedLen = 0;
     this.sylTopChars = [];
     this.setResultListAll();
@@ -662,10 +690,21 @@ export default {
   getResultByWord(val) {
     const that = this;
     let completed = false;
+    this.dictionaryPending = true;
     this._dictionary.search(val, that.lang, function (data, display) {
       completed = true;
+      that.dictionaryPending = false;
       that.cvalDisplay = display;
-      that.resultList = data.chars;                       // 单字候选（沿用）
+      that.resultList = that.lang === "jp" && that.jpkanaonly
+        ? data.chars.filter(function (value) { return /^[\u3040-\u30ff]+$/.test(value); })
+        : data.chars;                       // 单字候选（沿用）
+      const candidateTextSet = Object.create(null);
+      for (let ci = 0; ci < that.resultList.length; ci++) {
+        candidateTextSet[that.resultList[ci]] = true;
+      }
+      that.candidateOffsets = (data.candidates || []).filter(function (candidate) {
+        return candidateTextSet[candidate.text] === true;
+      });
       that.matchedLen = data.matched ? data.matched.length : 0;
       const multi = data.multi || { words: [], composed: "", sylTopChars: [] };
       that.sylTopChars = (multi.sylTopChars || []).filter(function(sc) { return sc.char && sc.offset > 0; });
@@ -700,7 +739,17 @@ export default {
       return;
     }
     this.onVibrate();
-    if ((this.lang === 'cn' || this.lang === 'jp')  && !this.numFlag) {
+    if (this.lang === 'jp' && this.numFlag) {
+      if (num === "'" || num === "-") {
+        this.cval += num;
+      } else {
+        if (this.cval && this.dictionaryPending) return;
+        // Commit kana and any incomplete tail before outputting punctuation/digits.
+        if (this.cval && this.matchedLen > 0 && this.resultRow0.length) this.onRsSelect(this.resultRow0[0]);
+        if (this.cval) this.pushCval();
+        this.addAllTxt(num);
+      }
+    } else if ((this.lang === 'cn' || this.lang === 'jp')  && !this.numFlag) {
       this.cval += num.toLowerCase();
     } else if (this.lang === "en" && !this.numFlag) {
       if (this.upperFlag) {
@@ -734,6 +783,7 @@ export default {
       this.resetResultList();
     } else {
       this._dictionary.release();
+      this.dictionaryPending = false;
       this.clearCandidates();
     }
   },

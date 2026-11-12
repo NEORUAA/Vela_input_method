@@ -17,10 +17,14 @@ for (const [file, name] of Object.entries(names)) {
   source[name] = vm.runInNewContext(strip(fs.readFileSync('tools/dictionaries/' + file, 'utf8')) + '\n' + name);
 }
 const createEngine = vm.runInNewContext(strip(fs.readFileSync('components/InputMethod/assets/dicUtil.js', 'utf8')) + '\ncreateInputMethod');
+const { loadModule } = require('./helpers/load-module.cjs');
+const { createJapaneseDictionary } = loadModule(require('node:path').resolve('components/InputMethod/assets/dictionaryLoader.js'), {
+  '@system.file': { default: {} }
+});
 const engine = createEngine();
 const base = 'components/InputMethod/assets/dictionary/';
 engine.initDict(JSON.parse(fs.readFileSync(base + 'cn.txt')));
-engine.dict.romaji2kanji = JSON.parse(fs.readFileSync(base + 'jp.txt'));
+engine.dict.romaji2kanji = createJapaneseDictionary(fs.readFileSync(base + 'jp.txt', 'utf8'));
 const words = source.getWords();
 const chars = source.getDict();
 const initials = source.getInitialsIndex();
@@ -34,7 +38,12 @@ for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
 // Check every generated value and index; the golden results also check ordering.
 const normalized = value => JSON.parse(JSON.stringify(value));
 assert.deepEqual(normalized(engine.dict.py2hz), normalized(chars));
-assert.deepEqual(normalized(engine.dict.romaji2kanji), normalized(japanese));
+assert.equal(engine.dict.romaji2kanji.entryCount, Object.keys(japanese).length);
+for (const [key, value] of Object.entries(japanese)) {
+  const unique = [...new Set(value)].join('');
+  assert.equal(engine.dict.romaji2kanji.get(key), unique);
+  assert.deepEqual(normalized(engine.getHanzi(key, 'jp').chars), unique.split(''));
+}
 assert.deepEqual([...engine.dict.syllableSet], [...new Set([...source.syllables, ...Object.keys(chars)])]);
 for (const letter of 'abcdefghijklmnopqrstuvwxyz') {
   const entries = object => Object.fromEntries(Object.entries(object).filter(([key]) => key[0] === letter));
@@ -72,7 +81,7 @@ for (let index = 0; index < 2000; index++) {
 }
 const hash = crypto.createHash('sha256');
 let count = 0;
-for (const language of ['cn', 'jp']) {
+for (const language of ['cn']) {
   for (const query of language === 'cn' ? queries : Object.keys(japanese)) {
     engine.dict.shards = {};
     if (language === 'cn') {
@@ -84,6 +93,8 @@ for (const language of ['cn', 'jp']) {
   }
 }
 // Captured from the original synchronous engine with its forward index fully built.
-assert.equal(count, 24127);
-assert.equal(hash.digest('hex'), 'bae83293c520945f42b8b5422bbe194f4bfa867d3dded1bc4a036262edb4aada');
-console.log('Passed: 24,127 original-engine candidate/display/offset results and all dictionary entries.');
+// Chinese-only fingerprint captured before changing Japanese storage; Japanese
+// candidate/display/offset parity is checked separately in japanese-dictionary.cjs.
+assert.equal(count, 22924);
+assert.equal(hash.digest('hex'), '5436fa441d1ed6900c5c10800bfa3c601b45bb5863cc9b7aaded68f642af7982');
+console.log('Passed: 22,924 original Chinese-engine results and all Chinese/Japanese dictionary entries.');
